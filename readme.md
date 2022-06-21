@@ -150,7 +150,7 @@ $paymentProvider=$paymentService->provider('stripe_intent');
 ```
 
 ## Tenancy
-Tenancy is supported but it is disabled by default. You can enable tenancy by setting a 'ai_payment.tenancy' key in *config/services.php* config thus:
+Tenancy is supported but it is disabled by default. You can enable tenancy by setting a 'ai-payment.tenancy' config thus:
 ```php
 ....
 /**

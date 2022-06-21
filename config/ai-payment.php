@@ -36,4 +36,32 @@ return [
         'webhook_tolerance'=>env('STRIPE_WEBHOOK_TOLERANCE',300),
     ],
 
+    /**
+     * Tenancy
+     */
+    'tenancy'=>[
+        'enable_multi_tenant'=>false,
+
+        //
+        'column_name'=>'tenant_id',
+
+        //
+        'is_column_type_integer'=>true,
+
+        // Should be a neutral ID that does not belong to any client when tenancy 
+        // is in use. If tenancy is not in use then all data is stored with this 
+        // value.
+        //
+        // The default tenant id. This default ID should belong to the 
+        // system Admin i.e not for a client since data is stored 
+        // with this tenant_id when the programmer has not defined a 
+        // specific tenant_id or a tenant_id cannot be derived which 
+        // may happen in problematic webhook calls for examples(e.g 
+        // when an underlying Transaction model is somehow missing).
+        'default'=>1,
+        
+        // Eloquent global scope name for scoping related queries
+        'global_scope_name'=>'simple_tenancy_tenant_id',
+    ]
+
 ];

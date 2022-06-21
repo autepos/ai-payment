@@ -9,35 +9,35 @@ class Tenant{
      */
     private const TENANT_ID_STORAGE_KEY='payment_provider_tenant_id';
 
-    /**
-     * The default configuration for tenant
-     */
-    private const DEFAULT_CONFIG=[
-        // Enable or disable multiple tenants. If not enabled, the default tenant 
-        // will be used all the time.
-        'enable_multi_tenant'=>false,
+    // /**
+    //  * The default configuration for tenant
+    //  */
+    // private const DEFAULT_CONFIG=[// TODO Read the default value of config from ai-payment.tenancy instead
+    //     // Enable or disable multiple tenants. If not enabled, the default tenant 
+    //     // will be used all the time.
+    //     'enable_multi_tenant'=>false,
         
-        //
-        'column_name'=>'tenant_id',
-        'is_column_type_integer'=>true,
+    //     //
+    //     'column_name'=>'tenant_id',
+    //     'is_column_type_integer'=>true,
 
-        // The default tenant id. This default ID should belong to the 
-        // system Admin i.e not for a client since data is stored 
-        // with this tenant_id when the programmer has not defined a 
-        // specific tenant_id or a tenant_id cannot be derived which 
-        // may happen in problematic webhook calls for examples(e.g 
-        // when an underlying Transaction model is somehow missing).
-        'default'=>1,
+    //     // The default tenant id. This default ID should belong to the 
+    //     // system Admin i.e not for a client since data is stored 
+    //     // with this tenant_id when the programmer has not defined a 
+    //     // specific tenant_id or a tenant_id cannot be derived which 
+    //     // may happen in problematic webhook calls for examples(e.g 
+    //     // when an underlying Transaction model is somehow missing).
+    //     'default'=>1,
         
-        //
-        'global_scope_name'=>'simple_tenancy_hospital_id',
+    //     //
+    //     'global_scope_name'=>'simple_tenancy_hospital_id',
         
-    ];
+    // ];
     
     /**
      * The name for accessing config
      */
-    private const CONFIG_NAME='services.payment_provider.tenancy';
+    private const CONFIG_NAME='ai-payment.tenancy';
 
     // /**
     //  * The id of the current tenant
@@ -54,7 +54,8 @@ class Tenant{
      * @return array
      */
     public static function getConfig(){
-        return config(static::CONFIG_NAME,static::DEFAULT_CONFIG);
+        //return config(static::CONFIG_NAME,static::DEFAULT_CONFIG);
+        return config(static::CONFIG_NAME);
     }
 
     /**
