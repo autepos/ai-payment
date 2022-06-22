@@ -10,7 +10,6 @@ use Money\Formatter\IntlMoneyFormatter;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\CustomerData;
-use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
@@ -19,9 +18,12 @@ use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 /**
  * The payment service is a convenience class of methods for interacting 
  * with payment provider.
- * @method PaymentProvider config(array $config,?bool $livemode)
- * @method static void tenant(int|string $tenant_id) Set the tenant for the processing.
- * @method static integer|string getTenant() Get the tenant for the processing.
+ * 
+ * The payment service is itself implemented as a payment provider which forwards  
+ * most of the calls on it to a set payment provider.
+ * 
+ * //@method static void tenant(int|string $tenant_id) Set the tenant for the processing.
+ * //@method static integer|string getTenant() Get the tenant for the processing.
  */
 class PaymentService_OLD_NEW extends PaymentProvider
 {
@@ -64,16 +66,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
         return $this;
     }
 
-    // /**
-    //  * Set configurations
-    //  */
-    // public function withConfig(array $config, bool $livemode): self
-    // {
-    //     $this->config = $config;
-    //     $this->livemode = $livemode;
-
-    //     return $this;
-    // }
 
     public function getProvider():string{
         return $this->provider;
@@ -88,7 +80,8 @@ class PaymentService_OLD_NEW extends PaymentProvider
      */
     public function providerInstance(): PaymentProvider
     {
-        return $this->manager->driver($this->provider);
+        return $this->manager->driver($this->provider)
+                ->config($this->config, $this->livemode);
     }
 
     /**
@@ -98,7 +91,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
     public function up(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->config($this->config, $this->livemode)
                     ->up();
     }
 
@@ -109,7 +101,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
     public function down(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->config($this->config, $this->livemode)
                     ->down();
     }
 
@@ -120,7 +111,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
     public function ping(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->config($this->config, $this->livemode)
                     ->ping();
     }
 
@@ -138,8 +128,7 @@ class PaymentService_OLD_NEW extends PaymentProvider
         
         //
         $paymentProvider = $this->providerInstance();
-        return $paymentProvider->config($this->config, $this->livemode)
-            ->init($amount, $data, $transaction);
+        return $paymentProvider->init($amount, $data, $transaction);
     }
 
     /**
@@ -155,7 +144,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
         
         $paymentProvider = $this->providerInstance();
         return $paymentProvider
-            ->config($this->config, $this->livemode)
             ->cashierInit($cashier, $amount, $data, $transaction);
 
 
@@ -181,7 +169,7 @@ class PaymentService_OLD_NEW extends PaymentProvider
         //
         $paymentProvider = $this->providerInstance();
         
-        return $paymentProvider->config($this->config, $this->livemode)
+        return $paymentProvider
             ->charge($transaction, $data);
     }
 
@@ -204,7 +192,7 @@ class PaymentService_OLD_NEW extends PaymentProvider
         //
         $paymentProvider = $this->providerInstance();
         
-        return $paymentProvider->config($this->config, $this->livemode)
+        return $paymentProvider
             ->cashierCharge($cashier, $transaction, $data);
     }
 
@@ -232,7 +220,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
         if ($this->validateRefund($transaction, $amount)) {
 
             return $this->providerInstance()
-                ->config($this->config, $this->livemode)
                 ->refund($cashier, $transaction, $amount, $description);
         } else {
             
@@ -252,7 +239,6 @@ class PaymentService_OLD_NEW extends PaymentProvider
     public function syncTransaction(Transaction $transaction): PaymentResponse
     {
         return $this->providerInstance()
-            ->config($this->config, $this->livemode)
             ->syncTransaction($transaction);
     }
 
@@ -274,6 +260,25 @@ class PaymentService_OLD_NEW extends PaymentProvider
     {
         return $this->providerInstance()
             ->paymentMethod($customerData);
+    }
+
+    
+
+    public function validateRefund(Transaction $transaction, int $refund_amount): bool
+    {
+        return $this->providerInstance()
+            ->validateRefund($transaction,$refund_amount);
+    }
+
+
+    public function isCancelable(Transaction $transaction):bool{
+        return $this->providerInstance()
+            ->isCancelable($transaction);
+    }
+
+    public function isRefundable():bool{
+        return $this->providerInstance()
+            ->isRefundable();
     }
 
     // /**
@@ -323,41 +328,31 @@ class PaymentService_OLD_NEW extends PaymentProvider
         return $moneyFormatter->format($money);
     }
 
-        /**
-     * Forward calls to the underlying payment provider
-     *
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public function __call($name, $arguments)
-    {
-        return $this->providerInstance()->{$name}(...$arguments);
-    }
+    //     /**
+    //  * Forward calls to the underlying payment provider
+    //  *
+    //  * @param string $name
+    //  * @param array $arguments
+    //  * @return mixed
+    //  */
+    // public function __call($name, $arguments)
+    // {
+    //     return $this->providerInstance()->{$name}(...$arguments);
+    // }
 
-    // /**
+
+
+    //     /**
     //  * Forward static calls to payment provider
     //  *
     //  * @param string $name
     //  * @param array $arguments
     //  * @return mixed
     //  */
-    // public function __callStatic($name, $arguments)
+    // public static function __callStatic($name, $arguments)
     // {
     //     return PaymentProvider::$name(...$arguments);
     // }
-
-        /**
-     * Forward static calls to payment provider
-     *
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public static function __callStatic($name, $arguments)
-    {
-        return PaymentProvider::$name(...$arguments);
-    }
 }
 // $ps=new PaymentService(app()->make(PaymentProviderFactory::class));
 // $ps->provider('stripe_intent')

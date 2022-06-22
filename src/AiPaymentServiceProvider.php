@@ -11,7 +11,7 @@ use Autepos\AiPayment\Providers\PayLaterPaymentProvider;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 
 
-class AiPaymentServiceProvider extends ServiceProvider implements DeferrableProvider
+class AiPaymentServiceProvider extends ServiceProvider 
 {
     /**
      * Register the service provider.
@@ -36,6 +36,8 @@ class AiPaymentServiceProvider extends ServiceProvider implements DeferrableProv
      */
     public function boot()
     {
+
+
 
         /**
          * Register default payment providers.
@@ -89,13 +91,5 @@ class AiPaymentServiceProvider extends ServiceProvider implements DeferrableProv
         $this->loadRoutesFrom(__DIR__ . '/Providers/StripeIntent/routes/routes.php');
     }
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [AiPaymentProviderFactory::class];
-    }
+
 }

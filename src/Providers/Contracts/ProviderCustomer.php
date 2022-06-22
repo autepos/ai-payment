@@ -66,6 +66,6 @@ abstract class ProviderCustomer
      * @todo No phpunit test
      */
     public static function isGuest(CustomerData $customerData):bool{
-        return ($customerData->user_type and  $customerData->user_id);
+        return !($customerData->user_type and  $customerData->user_id);
     }
 }

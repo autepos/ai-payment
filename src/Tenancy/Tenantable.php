@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * This trait should be placed in any model whose table holds rows of 
  * data that belongs to tenants). 
- * The table/model must relate to the tenant through the tenant id.
+ * The table/model must relate to the tenant through a tenant id column.
  */
 trait Tenantable{
 

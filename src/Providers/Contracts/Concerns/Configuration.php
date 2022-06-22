@@ -2,6 +2,7 @@
 
 namespace Autepos\AiPayment\Providers\Contracts\Concerns;
 
+use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
 trait Configuration
 {
@@ -25,7 +26,7 @@ trait Configuration
     /**
      * Set configurations
      */
-    public function config(array $config, bool $livemode = null): self
+    public function config(array $config, bool $livemode = null): PaymentProvider
     {
         $this->config = $config;
 
@@ -47,7 +48,7 @@ trait Configuration
     /**
      * Set the livemode
      */
-    public function livemode(bool $livemode): self
+    public function livemode(bool $livemode): PaymentProvider
     {
         $this->livemode = $livemode;
 

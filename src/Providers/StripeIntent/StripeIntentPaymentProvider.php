@@ -139,11 +139,6 @@ class StripeIntentPaymentProvider extends PaymentProvider
         // Amount
         $amount = $amount ?? $order->getAmount();
 
-
-         // // If a transaction to use is given, get its payment_intent
-        // if ($transaction) {
-        //     $payment_intent_id = $transaction->transaction_family_id;
-        // }
         
         //
         $transaction = $this->getInitTransaction($amount, $transaction);
@@ -152,9 +147,6 @@ class StripeIntentPaymentProvider extends PaymentProvider
         $payment_intent_id =$transaction->transaction_family_id;
         
        
-
-        
-
         //
         $orderable_id = $order->getKey();
         $customer = $this->getCustomerData();
@@ -183,8 +175,9 @@ class StripeIntentPaymentProvider extends PaymentProvider
 
 
         $paymentProviderCustomer=ProviderCustomer::isGuest($customer)
-            ?$this->customer()->toPaymentProviderCustomerOrCreate($customer)
-            :null;
+            ? null
+            : $this->customer()->toPaymentProviderCustomerOrCreate($customer);
+
         if ($paymentProviderCustomer) {//if ($paymentProviderCustomer = PaymentProviderCustomer::fromCustomerData($customer, $this)) {
             $paymentIntent_data['customer'] = $paymentProviderCustomer->payment_provider_customer_id;
             $paymentIntent_data['setup_future_usage'] = 'on_session';// 'off_session' can cause more decline according Stripe.
@@ -202,7 +195,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 }
             }
 
-            // Check if an id of a saved payment method is send along
+            // Check if an id of a saved payment method is sent along
             elseif (isset($data['payment_provider_customer_payment_method_id'])) {
                 $paymentProviderCustomerPaymentMethod = $paymentProviderCustomer->paymentMethods()
                     ->find($data['payment_provider_customer_payment_method_id']);
@@ -282,7 +275,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
     /**
      * @inheritDoc
      * @param array $data [
-     *      'save_payment_method'=>(int{0,1}) When 1 the payment method used to charge payment when payment is successful. Default is 0.
+     *      'save_payment_method'=>(int{0,1}) When 1 the payment method used to charge payment in saved if payment is successful. Default is 0.
      * ]
      */
     public function charge(Transaction $transaction, array $data = []): PaymentResponse
@@ -293,7 +286,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
     /**
      * @inheritDoc
      * @param array $data [
-     *      'save_payment_method'=>(int{0,1}) When 1 the payment method used to charge payment when payment is successful. Default is 0.
+     *      'save_payment_method'=>(int{0,1}) When 1 the payment method used to charge payment in saved if payment is successful. Default is 0.
      * ]
      */
     public function cashierCharge(Authenticatable $cashier, Transaction $transaction, array $data = []): PaymentResponse
