@@ -16,7 +16,7 @@ use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
-class PaymentProviderInteractWithTransactionTest extends TestCase
+class InteractWithTransactionTest extends TestCase
 {
     private $provider = 'abstract_provider';
     public function test_can_new_up_transaction()

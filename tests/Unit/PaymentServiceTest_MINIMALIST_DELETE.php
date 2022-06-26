@@ -1,6 +1,6 @@
 <?php
 
-namespace Autepos\AiPayment\Tests\Feature;
+namespace Autepos\AiPayment\Tests\Unit;
 
 
 use Mockery;
@@ -12,7 +12,7 @@ use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
 
-class PaymentServiceTest extends TestCase
+class PaymentServiceTest_MINIMALIST_DELETE extends TestCase
 {
 
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Autepos\AiPayment\Tests\Feature;
+namespace Autepos\AiPayment\Tests\Feature\Providers\Contracts;
 
 
 use Mockery;

@@ -10,10 +10,19 @@ trait RefundUtil{
     public function validateRefund(Transaction $transaction, int $refund_amount): bool
     {
         return (
-            $transaction->isValidRefundAmount($refund_amount)
+            $this->isValidRefundAmount($transaction, $refund_amount)
             and
-            ($this->getProvider()==$transaction->payment_provider)
+            ($this->isOwnTransaction($transaction))
         );
+    }
+
+    /**
+     * Check if the given refund amount is valid for the given transaction
+     *
+     */
+    protected function isValidRefundAmount(Transaction $transaction, int $refund_amount): bool
+    {
+        return $transaction->isValidRefundAmount($refund_amount);
     }
 
     /**

@@ -9,7 +9,7 @@ use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 
-class PaymentModelTransactionTest extends TestCase
+class TransactionTest extends TestCase
 {
 
 
@@ -107,7 +107,39 @@ class PaymentModelTransactionTest extends TestCase
     }
 
 
+    public function test_can_determine_the_payment_provider_for_a_transaction(){
+        $provider='provider_yi';
+        $transaction=Transaction::factory()
+        ->create([
+            'payment_provider'=>$provider,
+            'orderable_id'=>14022022,
+            'amount'=>1000,
+            'amount_refunded'=>0,
+            'success'=>true,
+            'refund'=>false,
+        ]);
 
+        $this->assertTrue($transaction->isForPaymentProvider($provider));
+        $this->assertFalse($transaction->isForPaymentProvider('provider_er'));
+
+    }
+
+    public function test_can_validate_refund_amount()
+    {
+        $provider='provider_yi';
+        $transaction=Transaction::factory()
+        ->create([
+            'payment_provider'=>$provider,
+            'orderable_id'=>14022022,
+            'amount'=>1000,
+            'amount_refunded'=>999,
+            'success'=>true,
+            'refund'=>false,
+        ]);
+
+        $this->assertTrue($transaction->isValidRefundAmount(1));
+        $this->assertFalse($transaction->isValidRefundAmount(2));
+    }
     
     
 }

@@ -34,7 +34,7 @@ trait ReusableTransaction
 
 
     /**
-     * Check that the given orderable is able to use the transaction instance 
+     * Check that the given orderable is able to use for the transaction instance 
      * for a new transaction.
      *
      */

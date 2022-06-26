@@ -20,12 +20,7 @@ class OfflinePaymentProviderTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
+
 
     private $provider = OfflinePaymentProvider::PROVIDER;
 

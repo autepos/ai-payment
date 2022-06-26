@@ -160,6 +160,13 @@ class Transaction extends Model
         return ($this->amount - $this->amount_refunded);
     }
 
+    /**
+     * Check if this transaction is provided by the given provider
+     *
+     */
+    public function isForPaymentProvider(string $payment_provider):bool{
+        return $this->payment_provider==$payment_provider;
+    }
 
     /**
      * Check if the instance is escrow.

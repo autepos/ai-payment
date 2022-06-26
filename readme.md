@@ -186,6 +186,16 @@ The registered name of the Payment processing component is suggested to follow t
 
 The registered name of the Refund component should follow a similar convention with the only different being that the word **Refund** appears at the end. So for the Stripe intent we will have, `StripeIntentPaymentProviderRefund`
 
+## Testing
+Run the tests from the command line 
+```
+php vendor/phpunit/phpunit/phpunit
+```
+or
+```
+composer test
+```
+
 ## TODO
 ### Renaming 'init' and 'charge' to 'create' and 'confirm' respectively:
 **CONSIDER:** *With the new names `create` and `confirm` it become a little unnatural that we have refund() and syncTransactions within the same namespace the new names. For e.g. is the confirm() for the refund() or the create(). Of course it is for create() but it is not immediately obvious. So although the new names may improve the feel of the api further restructuring may be required to get the full benefit*

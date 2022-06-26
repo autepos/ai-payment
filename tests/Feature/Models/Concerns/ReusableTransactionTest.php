@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 
 
-class PaymentModelTransactionConcernsReusableTransactionTest extends TestCase
+class ReusableTransactionTest extends TestCase
 {
     use RefreshDatabase;
 

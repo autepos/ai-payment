@@ -4,6 +4,7 @@ namespace Autepos\AiPayment\Providers\Contracts\Concerns;
 
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
+use Autepos\AiPayment\Providers\Contracts\Orderable;
 
 
 trait InteractWithTransaction
@@ -103,13 +104,31 @@ trait InteractWithTransaction
 
         return $transaction;
     }
+    /**
+     * Check that the given orderable is able to use for the transaction instance 
+     * for a new transaction.
+     *
+     */
+    protected function isTransactionUsableFor(Transaction $transaction,Orderable $order): bool
+    {
+        return $transaction->isUsableFor($order);
+    }
 
-            /**
+    /**
+     * Check if this provider provided the given transaction
+     */
+    protected function isOwnTransaction(Transaction $transaction):bool{
+        return $transaction->isForPaymentProvider($this->getProvider());
+        
+    }
+    
+
+    /**
      * Authorise the provider to work on the given transaction
      */
     protected function authoriseProviderTransaction(Transaction $transaction):bool{
         return (
-                    ($transaction->payment_provider==$this->getProvider())
+                    ($this->isOwnTransaction($transaction))
                     and 
                     $this->hasSameLiveModeAsTransaction($transaction)
                 );

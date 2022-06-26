@@ -16,12 +16,7 @@ class StripeIntent_StripeIntentPaymentMethod_Test extends TestCase{
     use RefreshDatabase;
     use StripeIntentTestHelpers;
 
-    /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
+
 
     private $provider = StripeIntentPaymentProvider::PROVIDER;
 
