@@ -2,17 +2,62 @@
 
 namespace Autepos\AiPayment\Models;
 
-use Autepos\AiPayment\Contracts\CustomerData;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Autepos\AiPayment\PaymentService;
+use Illuminate\Database\Eloquent\Model;
 use Autepos\AiPayment\Tenancy\Tenantable;
+use Autepos\AiPayment\Contracts\CustomerData;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Autepos\AiPayment\Events\OrderableTransactionsTotaled;
 use Autepos\AiPayment\Models\Concerns\ReusableTransaction;
 use Autepos\AiPayment\Models\Factories\TransactionFactory;
 
-
+/**
+ * Transaction information.
+ * 
+ * @property int $id
+ * @property string|int ${tenant-id}  the id of the owner tenant
+ * @property int $parent_id the transaction the this transaction is related to, i.e for self join
+ * @property string $cashier_id the id of an admin user/if any, who processed the transaction.
+ * @property string $orderable_id relationship with orderable. 
+ * @property int $orderable_amount the max amount that need to be captured for this transaction
+ * @property string $currency
+ * @property int  $amount_escrow the total amount confirmed available that can be received from this transaction. The amount may be held by the provider or a third-party. It can be requested for on a later date.
+ * @property int  $amount_escrow_claimed the total amount claimed from escrow. NOTE: This should only be used to only locally determine the remaining amount to be claimed; it should not be used for any other calculations.
+ * @property \Carbon\Carbon  $escrow_claimed_at the date of last escrow claim
+ * @property \Carbon\Carbon  $escrow_expires_at the expiry date of escrow
+ * @property int $amount total amount received from this transaction. Must be 0 for a refund-only transaction(i.e refund=true). Must always be positive.
+ * @property int $amount_refunded total refunded for this transaction. Must always be negative.
+ * @property string $transaction_family the transaction family/object name. E.g Stripe's 'payment_intent','refund', 'charge' etc 
+ * @property string transaction_family_id this should uniquely identify the family/group within this transaction. E.g the corresponding Stripe's payment_intent_id
+ * @property string $transaction_child_id This represents a unique item belonging to transaction family with id of
+ * transaction_family_id. 
+ * E.g a charge_id on the corresponding Stripe's payment_intent_id. Typically 
+ * for Stripe a payment intent will have an array of charge objects. So the 
+ * id of the charge objects goes here.        
+ * @property bool $success determines if transaction has succeeded
+ * @property bool $refund  the transaction is a refund-only transaction when this is TRUE.
+ * @property bool $display_only when TRUE the transaction is a dummy and should not be involved in calculations      
+ * @property string $status transaction overall status as defined by the payment provider;
+ * @property string $local_status transaction overall status defined by the app/package
+ * @property bool $retrospective determines whether this is created either through webhook or going to the provider to confirm that payment was successful 
+ * @property bool $through_webhook is this created through a webhook
+ * @property bool $address_matched when TRUE the payment provider fraud checker system has matched the postcode  of the address used to process the transaction.
+ * @property bool $postcode_matched when TRUE the payment provider fraud checker system has matched the postcode  of the payment method used to process the transaction.
+ * @property bool $cvc_matched when TRUE the payment provider fraud checker system has matched the postcode  of the CVC used to process the transaction.
+ * @property bool $threed_secure determines if the transaction was thread secure according to the payment provider
+ * @property string $description transaction description
+ * @property string $notes additional notes
+ * @property array $meta  arbitrary transaction data
+ * @property bool $livemode determines whether the transaction is a live transaction
+ * @property string $user_type the class/type of the customer (aka logged user)  who own this transaction
+ * @property string $user_id the identifier of the customer customer (aka logged user) who own this transaction
+ * @property string $card_type type of card used to process the transaction
+ * @property string $last_four the last 4 number of the card used to process the transaction
+ * @property string $payment_provider the payment provider who processed the transaction
+ * @property \Carbon\Carbon created_at the date transaction was created
+ * @property \Carbon\Carbon updated_at The date of last update
+ */
 class Transaction extends Model
 {
     use HasFactory;
@@ -43,8 +88,8 @@ class Transaction extends Model
 
 
     protected $casts = [
-        'escrow_expires_at' => 'date',
-        'escrow_claimed_at' => 'date',
+        'escrow_expires_at' => 'datetime',
+        'escrow_claimed_at' => 'datetime',
         'livemode' => 'boolean',
         'refund' => 'boolean',
         'through_webhook' => 'boolean',
@@ -52,8 +97,6 @@ class Transaction extends Model
         'success' => 'boolean',
         'retrospective' => 'boolean',
         'meta' => 'array',
-
-
     ];
 
     /**

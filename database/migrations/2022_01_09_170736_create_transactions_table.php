@@ -19,27 +19,27 @@ class CreateTransactionsTable extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             Tenant::addSchemaColumn($table);
-            $table->unsignedBigInteger('parent_id')->nullable();// The transaction the this transaction is related to, i.e for self join
+            $table->unsignedBigInteger('parent_id')->nullable(); // The transaction the this transaction is related to, i.e for self join
 
-            $table->string('cashier_id')->nullable();// The id of an admin user/if any, who collected the payment.
+            $table->string('cashier_id')->nullable(); // The id of an admin user/if any, who collected the payment.
 
             /**
              * Relationship with orderable. 
              */
             //$table->string('orderable_type');// TODO: implement to allow app to define multiple different order classes.
             $table->string('orderable_id');
-            //$table->string('orderable_detail_ids')->nullable();//TODO:This is useless and should be removed. Find where used and remove //serialised array of orderable item ids. //TODO: we could store each of these ideas in a related table(e.g transaction_orderable_details table)
             $table->bigInteger('orderable_amount')->default(0);
 
             $table->string('currency')->nullable();
 
-            ///////////////////////////////////////////////
+            
             /**
              * The total amount confirmed available that can be received from this 
              * transaction. The amount may be held by the provider or a third-party. 
              * It can be requested for on a later date.
-             */ 
+             */
             $table->bigInteger('amount_escrow')->default(0);
+            $table->bigInteger('amount_escrow_claimed')->default(0);
             $table->timestamp('escrow_claimed_at')->nullable();
             $table->timestamp('escrow_expires_at')->nullable();
 
@@ -52,8 +52,8 @@ class CreateTransactionsTable extends Migration
             /**
              * Total refunded for this transaction. Must always be negative.
              */
-            $table->bigInteger('amount_refunded')->default(0);//
-            //////////////////////////////////////////////////////
+            $table->bigInteger('amount_refunded')->default(0); //
+
 
             /**
              * The transaction family/object name
@@ -66,7 +66,7 @@ class CreateTransactionsTable extends Migration
              * E.g the corresponding Stripe's payment_intent_id
              */
             $table->string('transaction_family_id')->nullable();
-            
+
             /**
              * This represents a unique item belonging to transaction family with id of
              * transaction_family_id. 
@@ -75,19 +75,17 @@ class CreateTransactionsTable extends Migration
              * id of the charge objects goes here.
              */
             $table->string('transaction_child_id')->nullable();
-            
+
             //
-            //$table->string('token')->nullable()->comment('client secret');
-            //$table->string('merchant');
             $table->boolean('success')->default(false);
-            $table->boolean('refund')->default(false);// This is a refund-only transaction when TRUE.
+            $table->boolean('refund')->default(false); // This is a refund-only transaction when TRUE.
             $table->boolean('display_only')->default(false);
-            //$table->boolean('manual')->default(false)->index();//TODO: why do we need this
+            
             $table->string('status')->default('unknown');
             $table->string('local_status')->default(Transaction::LOCAL_STATUS_INIT);
-            $table->boolean('retrospective')->default(false);// i.e is this created either through webhook or going to the provider to confirm that payment was successful 
+            $table->boolean('retrospective')->default(false); // i.e is this created either through webhook or going to the provider to confirm that payment was successful 
             $table->boolean('through_webhook')->default(false); // is this created through a webhook
-            
+
             $table->boolean('address_matched')->default(false);
             $table->boolean('postcode_matched')->default(false);
             $table->boolean('cvc_matched')->default(false);
@@ -95,14 +93,14 @@ class CreateTransactionsTable extends Migration
             $table->string('description')->nullable();
             $table->text('notes')->nullable();
 
-            $table->json('meta')->nullable();// For arbitrary transaction data
-            
+            $table->json('meta')->nullable(); // For arbitrary transaction data
+
             //
             $table->boolean('livemode')->default(false);
-            
 
-            $table->string('user_type')->nullable();// eg. the user class
-            
+
+            $table->string('user_type')->nullable(); // eg. the user class
+
             /**
              * We call this {user}_id but it is up to the programmer whatever they will call {user} table
              * it in their users(i.e. logged in customers) table.
@@ -111,8 +109,8 @@ class CreateTransactionsTable extends Migration
              */
             $table->string('user_id')->nullable();
 
-            
-            $table->string('card_type')->nullable()->index();
+
+            $table->string('card_type')->nullable();
             $table->string('last_four')->nullable();
 
             $table->string('payment_provider');
@@ -120,8 +118,6 @@ class CreateTransactionsTable extends Migration
             $table->timestamps();
 
             $table->index(['payment_provider']);
-
-            
         });
     }
 
