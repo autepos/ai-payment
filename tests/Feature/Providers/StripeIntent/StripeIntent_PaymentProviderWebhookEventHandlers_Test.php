@@ -29,22 +29,22 @@ class StripeIntent_PaymentProviderWebhookEventHandlers_Test extends TestCase
 
         // Turn off webhook secret to disable webhook verification so we do not 
         // have to sign the request we make to the webhook endpoint.
-        $paymentProvider=$this->providerInstance();
+        $paymentProvider = $this->providerInstance();
 
         $rawConfig = $paymentProvider->getRawConfig();
         $rawConfig['webhook_secret'] = null;
 
 
         // Mock the payment provider
-        $partialMockPaymentProvider=Mockery::mock(StripeIntentPaymentProvider::class)->makePartial();
+        $partialMockPaymentProvider = Mockery::mock(StripeIntentPaymentProvider::class)->makePartial();
         $partialMockPaymentProvider->shouldReceive('webhookChargeByRetrieval')
-        ->byDefault()
-        ->with(Mockery::type(PaymentIntent::class))
-        ->once()
-        ->andReturn(new PaymentResponse(PaymentResponse::newType('charge'),true));
+            ->byDefault()
+            ->with(Mockery::type(PaymentIntent::class))
+            ->once()
+            ->andReturn(new PaymentResponse(PaymentResponse::newType('charge'), true));
 
         // Use the mock to replace the payment provider in the manager and set the modified config
-        $this->paymentManager()->extend($this->provider,function()use($partialMockPaymentProvider,$rawConfig){
+        $this->paymentManager()->extend($this->provider, function () use ($partialMockPaymentProvider, $rawConfig) {
             return $partialMockPaymentProvider->config($rawConfig);
         });
 
@@ -53,98 +53,98 @@ class StripeIntent_PaymentProviderWebhookEventHandlers_Test extends TestCase
         $this->paymentManager()->forgetDrivers();
 
         //
-        $this->partialMockPaymentProvider=$partialMockPaymentProvider;
-
+        $this->partialMockPaymentProvider = $partialMockPaymentProvider;
     }
 
-    public function test_can_handle_payment_intent_succeeded_webhook_event(){
+    public function test_can_handle_payment_intent_succeeded_webhook_event()
+    {
 
         // Now post an intent with a succeeded status
-        $data=[
-            'object'=>[
-                'id'=>'pm_id',
-                'status'=>PaymentIntent::STATUS_SUCCEEDED,
-                'object'=>PaymentIntent::OBJECT_NAME,
+        $data = [
+            'object' => [
+                'id' => 'pm_id',
+                'status' => PaymentIntent::STATUS_SUCCEEDED,
+                'object' => PaymentIntent::OBJECT_NAME,
             ]
         ];
 
-        $payload=[
-            'id'=>'test_event',
-            'object'=>Event::OBJECT_NAME,
-            'type'=>Event::PAYMENT_INTENT_SUCCEEDED,
-            'data'=>$data,
+        $payload = [
+            'id' => 'test_event',
+            'object' => Event::OBJECT_NAME,
+            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
+            'data' => $data,
         ];
 
-        
-        $response=$this->postJson(StripeIntentPaymentProvider::$webhookEndpoint,$payload);
+
+        $response = $this->postJson(StripeIntentPaymentProvider::$webhookEndpoint, $payload);
         $response->assertOk();
         $this->assertEquals('Webhook Handled', $response->getContent());
     }
 
-    public function test_can_handle_payment_intent_succeeded_webhook_event_when_data_recording_fails(){
+    public function test_can_handle_payment_intent_succeeded_webhook_event_when_data_recording_fails()
+    {
 
         // Set a specific expectation on the payment provider partial mock
         $this->partialMockPaymentProvider->shouldReceive('webhookChargeByRetrieval')
-        ->once()
-        ->with(Mockery::type(PaymentIntent::class))
-        ->andReturn(new PaymentResponse(PaymentResponse::newType('charge'),false));
+            ->once()
+            ->with(Mockery::type(PaymentIntent::class))
+            ->andReturn(new PaymentResponse(PaymentResponse::newType('charge'), false));
 
         // Now post an intent with a succeeded status
-        $data=[
-            'object'=>[
-                'id'=>'pm_id',
-                'status'=>PaymentIntent::STATUS_SUCCEEDED,
-                'object'=>PaymentIntent::OBJECT_NAME,
+        $data = [
+            'object' => [
+                'id' => 'pm_id',
+                'status' => PaymentIntent::STATUS_SUCCEEDED,
+                'object' => PaymentIntent::OBJECT_NAME,
             ]
         ];
 
-        $payload=[
-            'id'=>'test_event',
-            'object'=>Event::OBJECT_NAME,
-            'type'=>Event::PAYMENT_INTENT_SUCCEEDED,
-            'data'=>$data,
+        $payload = [
+            'id' => 'test_event',
+            'object' => Event::OBJECT_NAME,
+            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
+            'data' => $data,
         ];
 
         //
         Log::shouldReceive('error')
-        ->once();
+            ->once();
 
         //
-        $response=$this->postJson(StripeIntentPaymentProvider::$webhookEndpoint,$payload);
+        $response = $this->postJson(StripeIntentPaymentProvider::$webhookEndpoint, $payload);
         $response->assertStatus(422);
         $this->assertEquals('There was an issue with processing the webhook', $response->getContent());
-
     }
 
-    public function test_cannot_handle_payment_intent_succeeded_webhook_event_when_the_intent_cannot_be_extracted(){
+    public function test_cannot_handle_payment_intent_succeeded_webhook_event_when_the_intent_cannot_be_extracted()
+    {
 
         // Set a specific expectation on the payment provider partial mock
         $this->partialMockPaymentProvider->shouldNotReceive('webhookChargeByRetrieval');
 
         // Now post an intent with a succeeded status
-        $data=[
-            'object'=>[
-                'id'=>'pm_id',
-                'status'=>PaymentIntent::STATUS_SUCCEEDED,
-                'object'=>'not_payment_intent',
+        $data = [
+            'object' => [
+                'id' => 'pm_id',
+                'status' => PaymentIntent::STATUS_SUCCEEDED,
+                'object' => 'not_payment_intent',
             ]
         ];
 
-        $payload=[
-            'id'=>'test_event',
-            'object'=>Event::OBJECT_NAME,
-            'type'=>Event::PAYMENT_INTENT_SUCCEEDED,
-            'data'=>$data,
+        $payload = [
+            'id' => 'test_event',
+            'object' => Event::OBJECT_NAME,
+            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
+            'data' => $data,
         ];
 
         //
         Log::shouldReceive('error')
-        ->once();
+            ->once();
 
         //
-        $response=$this->postJson(StripeIntentPaymentProvider::$webhookEndpoint,$payload);
+        $response = $this->postJson(StripeIntentPaymentProvider::$webhookEndpoint, $payload);
         $response->assertStatus(422);
         $this->assertEquals('There was an issue with processing the webhook', $response->getContent());
-
     }
 }

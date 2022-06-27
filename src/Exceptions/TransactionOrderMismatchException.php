@@ -1,4 +1,5 @@
 <?php
+
 namespace Autepos\AiPayment\Exceptions;
 
 use Autepos\AiPayment\PaymentResponse;
@@ -7,37 +8,39 @@ use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
 /**
- * TODO: this exception is currently not in use internally
+ * Note: If a programmer is requiring Orderable when processing a 
+ * charge, this Exception can be used when required
  */
-class TransactionOrderMismatchException extends \Exception implements ExceptionInterface{
+class TransactionOrderMismatchException extends \Exception implements ExceptionInterface
+{
 
     /**
      * The transaction that mismatched with order
      *
      * @var \Autepos\AiPayment\Models\Transaction
      */
-    protected $transaction=null;
+    protected $transaction = null;
 
     /**
      * The orderable that mismatched with the transaction
      *
      * @var \Autepos\AiPayment\Providers\Contracts\Orderable
      */
-    protected $order=null;
+    protected $order = null;
 
     /**
      * The processing provider during the mismatch
      *
      * @var \Autepos\AiPayment\Providers\Contracts\PaymentProvider
      */
-    protected $paymentProvider=null;
+    protected $paymentProvider = null;
 
-        /**
+    /**
      * The Payment response relating to the mismatch
      *
      * @var \Autepos\AiPayment\PaymentResponse
      */
-    protected $paymentResponse=null;
+    protected $paymentResponse = null;
 
 
     /**
@@ -59,45 +62,50 @@ class TransactionOrderMismatchException extends \Exception implements ExceptionI
         $instance->setPaymentResponse($paymentResponse);
         return $instance;
     }
-    
+
 
 
     /**
      * Set transaction that mismatched with order
      */
-    public function setTransaction(Transaction $transaction){
-        $this->transaction=$transaction;
+    public function setTransaction(Transaction $transaction)
+    {
+        $this->transaction = $transaction;
     }
 
     /**
      * Set the orderable that mismatched with the transaction
      *
      */
-    public function setOrder(Orderable $order){
-        $this->order=$order;
+    public function setOrder(Orderable $order)
+    {
+        $this->order = $order;
     }
 
     /**
      * Set the processing payment provider during the mismatch
      *
      */
-    public function setPaymentProvider(PaymentProvider $paymentProvider){
-        $this->paymentProvider=$paymentProvider;
+    public function setPaymentProvider(PaymentProvider $paymentProvider)
+    {
+        $this->paymentProvider = $paymentProvider;
     }
 
     /**
      * Set the payment response relating to the mismatch
      *
      */
-    public function setPaymentResponse(?PaymentResponse $paymentResponse){
-        $this->paymentResponse=$paymentResponse;
+    public function setPaymentResponse(?PaymentResponse $paymentResponse)
+    {
+        $this->paymentResponse = $paymentResponse;
     }
 
 
     /**
      * Get transaction that mismatched with order
      */
-    public function getTransaction():Transaction{
+    public function getTransaction(): Transaction
+    {
         return $this->transaction;
     }
 
@@ -105,7 +113,8 @@ class TransactionOrderMismatchException extends \Exception implements ExceptionI
      * Get the orderable that mismatched with the transaction
      *
      */
-    public function getOrder():Orderable{
+    public function getOrder(): Orderable
+    {
         return $this->order;
     }
 
@@ -113,27 +122,29 @@ class TransactionOrderMismatchException extends \Exception implements ExceptionI
      * Get the processing payment provider during the mismatch
      *
      */
-    public function getPaymentProvider():PaymentProvider{
+    public function getPaymentProvider(): PaymentProvider
+    {
         return $this->paymentProvider;
     }
 
-        /**
+    /**
      * Get the payment response relating to the mismatch
      *
      */
-    public function getPaymentResponse():?PaymentResponse{
+    public function getPaymentResponse(): ?PaymentResponse
+    {
         return $this->paymentResponse;
     }
 
 
-        /**
+    /**
      * Returns the string representation of the exception.
      *
      * @return string
      */
     public function __toString()
     {
-        $payment_response_errors=$this->paymentResponse ? implode('. ',$this->paymentResponse->errors): null;
+        $payment_response_errors = $this->paymentResponse ? implode('. ', $this->paymentResponse->errors) : null;
 
         return "Transaction: {$this->transaction->id},
         Transaction livemode, {intval($this->transaction->livemode)},

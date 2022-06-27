@@ -11,29 +11,26 @@ use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 class PaymentManagerTest extends TestCase
 {
 
-    public function test_can_instantiate_payment_a_provider(){
+    public function test_can_instantiate_payment_a_provider()
+    {
 
-        $provider='provider_yi';
+        $provider = 'provider_yi';
 
         //
-        $paymentManager=app(PaymentProviderFactory::class);
+        $paymentManager = app(PaymentProviderFactory::class);
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
 
         // Register the payment provider to use the mocked instance
-        $paymentManager->extend($provider,function($app)use($mockAbstractPaymentProvider){
+        $paymentManager->extend($provider, function ($app) use ($mockAbstractPaymentProvider) {
             return $mockAbstractPaymentProvider;
         });
 
-        $paymentProvider=$paymentManager->driver($provider);
-       
+        $paymentProvider = $paymentManager->driver($provider);
+
         //
-        $this->assertInstanceOf(PaymentProvider::class,$paymentProvider);
-
+        $this->assertInstanceOf(PaymentProvider::class, $paymentProvider);
     }
-
-    
-    
 }

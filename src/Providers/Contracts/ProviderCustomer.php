@@ -7,8 +7,6 @@ use Autepos\AiPayment\Contracts\CustomerData;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
 
 
-
-
 abstract class ProviderCustomer
 {
 
@@ -29,15 +27,12 @@ abstract class ProviderCustomer
         return $this;
     }
 
-
-
-
     /**
      * Check if there is a matching record already created for the given customer data.
      */
     public function has(CustomerData $customerData): bool
     {
-        return !!$this.get($customerData);
+        return !!$this . get($customerData);
     }
 
     /**
@@ -61,11 +56,12 @@ abstract class ProviderCustomer
      */
     public abstract function delete(PaymentProviderCustomer $paymentProviderCustomer): CustomerResponse;
 
-        /**
+    /**
      * Check if the customer given is guest
-     * @todo No phpunit test
+     * @todo No phpunit test //todo
      */
-    public static function isGuest(CustomerData $customerData):bool{
+    public static function isGuest(CustomerData $customerData): bool
+    {
         return !($customerData->user_type and  $customerData->user_id);
     }
 }

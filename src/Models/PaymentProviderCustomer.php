@@ -21,14 +21,14 @@ class PaymentProviderCustomer extends Model
     use HasFactory;
     use Tenantable;
 
-    protected $hidden=[
-        'payment_provider_customer_id',// This can be removed if required
+    protected $hidden = [
+        'payment_provider_customer_id', // This can be removed if required
         'created_at',
         'updated_at',
     ];
 
-    protected $casts=[
-        'meta'=>'array',
+    protected $casts = [
+        'meta' => 'array',
     ];
 
     /**
@@ -46,7 +46,8 @@ class PaymentProviderCustomer extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function paymentMethods(){
+    public function paymentMethods()
+    {
         //
         return $this->hasMany(PaymentProviderCustomerPaymentMethod::class);
     }
@@ -54,20 +55,22 @@ class PaymentProviderCustomer extends Model
     /**
      * Get an instance from CustomerData for a given payment provider
      */
-    public static function fromCustomerData(CustomerData $customerData,string $payment_provider):?self{
-        return static::where('user_type',$customerData->user_type)
-        ->where('user_id',$customerData->user_id)
-        ->where('payment_provider',$payment_provider)
-        ->first();
+    public static function fromCustomerData(CustomerData $customerData, string $payment_provider): ?self
+    {
+        return static::where('user_type', $customerData->user_type)
+            ->where('user_id', $customerData->user_id)
+            ->where('payment_provider', $payment_provider)
+            ->first();
     }
 
 
     /**
      * Get an instance from payment provider customer id for a given payment provider
      */
-    public static function fromPaymentProviderId(string $payment_provider_customer_id,PaymentProvider $paymentProvider):?self{
-        return static::where('payment_provider_customer_id',$payment_provider_customer_id)
-        ->where('payment_provider',$paymentProvider->getProvider())
-        ->first();
+    public static function fromPaymentProviderId(string $payment_provider_customer_id, PaymentProvider $paymentProvider): ?self
+    {
+        return static::where('payment_provider_customer_id', $payment_provider_customer_id)
+            ->where('payment_provider', $paymentProvider->getProvider())
+            ->first();
     }
 }

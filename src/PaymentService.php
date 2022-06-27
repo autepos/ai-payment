@@ -24,8 +24,6 @@ use \Autepos\AiPayment\Exceptions\TransactionPaymentProviderMismatchException;
  * The payment service is itself implemented as a payment provider which forwards  
  * most of the calls on it to a set payment provider.
  * 
- * //@method static void tenant(int|string $tenant_id) Set the tenant for the processing.
- * //@method static integer|string getTenant() Get the tenant for the processing.
  */
 class PaymentService extends PaymentProvider
 {
@@ -56,7 +54,7 @@ class PaymentService extends PaymentProvider
     {
         $this->manager = $manager;
     }
-    
+
 
     /**
      * Set the provider
@@ -69,7 +67,8 @@ class PaymentService extends PaymentProvider
     }
 
 
-    public function getProvider():string{
+    public function getProvider(): string
+    {
         return $this->provider;
     }
 
@@ -83,28 +82,28 @@ class PaymentService extends PaymentProvider
     public function providerInstance(): PaymentProvider
     {
         return $this->manager->driver($this->provider)
-                ->config($this->config, $this->livemode);
+            ->config($this->config, $this->livemode);
     }
 
 
     public function up(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->up();
+            ->up();
     }
 
 
     public function down(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->down();
+            ->down();
     }
 
 
     public function ping(): SimpleResponse
     {
         return $this->providerInstance()
-                    ->ping();
+            ->ping();
     }
 
 
@@ -114,31 +113,29 @@ class PaymentService extends PaymentProvider
         $paymentProvider = $this->providerInstance();
 
 
-        if ($transaction and !$paymentProvider->isTransactionUsableFor($transaction,$this->order)) {
-            $transaction=null;
+        if ($transaction and !$paymentProvider->isTransactionUsableFor($transaction, $this->order)) {
+            $transaction = null;
         }
-        
+
         //
-        
+
         return $paymentProvider->order($this->order)
-        ->init($amount, $data, $transaction);
+            ->init($amount, $data, $transaction);
     }
 
- 
-    public function cashierInit(Authenticatable $cashier,int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
+
+    public function cashierInit(Authenticatable $cashier, int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
     {
         $paymentProvider = $this->providerInstance();
 
 
-        if ($transaction and !$paymentProvider->isTransactionUsableFor($transaction,$this->order)) {
-            $transaction=null;
+        if ($transaction and !$paymentProvider->isTransactionUsableFor($transaction, $this->order)) {
+            $transaction = null;
         }
 
         //
         return $paymentProvider->order($this->order)
             ->cashierInit($cashier, $amount, $data, $transaction);
-
-
     }
 
 
@@ -152,7 +149,7 @@ class PaymentService extends PaymentProvider
         $paymentProvider = $this->providerInstance();
 
 
-        if(!$paymentProvider->authoriseProviderTransaction($transaction)){
+        if (!$paymentProvider->authoriseProviderTransaction($transaction)) {
             // Instead of returning a response here, we are going to throw an exception 
             // to indicate the magnitude of the concern that this authorisation fails  
             // during customer charge. Throwing an exception also allows a log to be  
@@ -160,18 +157,18 @@ class PaymentService extends PaymentProvider
             // the loop when a customer is performing a charge.
             $paymentResponse = new PaymentResponse(PaymentResponse::newType('charge'));
             $paymentResponse->success = false;
-            $paymentResponse->message="Transaction-provider authorisation error";
+            $paymentResponse->message = "Transaction-provider authorisation error";
 
-            if($paymentProvider->hasSameLiveModeAsTransaction($transaction)){
-                $paymentResponse->errors=['Unauthorised payment transaction with provider'];
+            if ($paymentProvider->hasSameLiveModeAsTransaction($transaction)) {
+                $paymentResponse->errors = ['Unauthorised payment transaction with provider'];
                 throw TransactionPaymentProviderMismatchException::factory(
                     $paymentResponse->message,
                     $transaction,
                     $paymentProvider,
                     $paymentResponse
                 );
-            }else{
-                $paymentResponse->errors =['Livemode mismatch'];
+            } else {
+                $paymentResponse->errors = ['Livemode mismatch'];
                 throw LivemodeMismatchException::factory(
                     $paymentResponse->message,
                     $transaction,
@@ -187,28 +184,9 @@ class PaymentService extends PaymentProvider
         // NOTE: It is up to the programmer to ensure that the the given order is correct for 
         // the given transaction, since it is the programmer who knows better why an 
         // order is available during charge.
-        if(!is_null($this->order)){// TODO: perhapse help the programmer to check whether the order is for the transaction? But the thing is that we do not want to encourage providing the order during charge?
-            $paymentProvider=$paymentProvider->order($this->order);
+        if (!is_null($this->order)) { // TODO: perhaps help the programmer to check whether the order is for the transaction? But the thing is that we do not want to encourage providing the order during charge?
+            $paymentProvider = $paymentProvider->order($this->order);
         }
-
-        // // Order is not required to make charge but if the programmer has made the order 
-        // // available, we will do as we are told and go ahead and pass it to the provider.
-        // if ($this->order) {// TODO: no unit test
-        //     if($paymentProvider->isTransactionUsableFor($transaction,$this->order)) {
-        //         $paymentProvider=$paymentProvider->order($this->order);
-        //     }else{
-        //         $paymentResponse = new PaymentResponse(PaymentResponse::newType('charge'));
-        //         $paymentResponse->message='Mismatch error';
-        //         $paymentResponse->errors=['A mismatch error ocurred while performing charge'];
-        //         $log_msg='The given transaction cannot be used with the given order. Hint - An order is not normally required when performing a charge';
-        //         Log::error(__METHOD__.': '.$log_msg,[
-        //             'order'=>$this->order,
-        //             'transaction'=>$transaction,
-        //             'payment_provider'=>$this->provider
-        //         ]);
-        //         return $paymentResponse;
-        //     }            
-        // }
 
         //
         return $paymentProvider
@@ -224,14 +202,14 @@ class PaymentService extends PaymentProvider
         //
         $paymentProvider = $this->providerInstance();
 
-        
-        if(!$paymentProvider->authoriseProviderTransaction($transaction)){
+
+        if (!$paymentProvider->authoriseProviderTransaction($transaction)) {
             $paymentResponse = new PaymentResponse(PaymentResponse::newType('charge'));
             $paymentResponse->success = false;
-            $paymentResponse->message="Transaction-provider authorisation error";
-            $paymentResponse->errors =$paymentProvider->hasSameLiveModeAsTransaction($transaction)
-            ?['Unauthorised payment transaction with provider']
-            :['Livemode mismatch'];
+            $paymentResponse->message = "Transaction-provider authorisation error";
+            $paymentResponse->errors = $paymentProvider->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $paymentResponse;
         }
 
@@ -240,28 +218,10 @@ class PaymentService extends PaymentProvider
         // NOTE: It is up to the programmer to ensure that the the given order is correct for 
         // the given transaction, since it is the programmer who knows better why an 
         // order is available during charge.
-        if(!is_null($this->order)){// TODO: perhapse help the programmer to check whether the order is for the transaction? But the thing is that we do not want to encourage providing the order during charge?
-            $paymentProvider=$paymentProvider->order($this->order);
+        if (!is_null($this->order)) { // TODO: perhaps help the programmer to check whether the order is for the transaction? But the thing is that we do not want to encourage providing the order during charge?
+            $paymentProvider = $paymentProvider->order($this->order);
         }
 
-        // // Order is not required to make charge but if the programmer has made the order 
-        // // available, we will do as we are told and go ahead and pass it to the provider.
-        // if ($this->order) {// TODO: no unit test
-        //     if($paymentProvider->isTransactionUsableFor($transaction,$this->order)) {
-        //         $paymentProvider=$paymentProvider->order($this->order);
-        //     }else{
-        //         $paymentResponse = new PaymentResponse(PaymentResponse::newType('charge'));
-        //         $paymentResponse->message='Mismatch error';
-        //         $paymentResponse->errors=['A mismatch error ocurred while performing charge'];
-        //         $log_msg='The given transaction cannot be used with the given order. Hint - An order is not normally required when performing a charge';
-        //         Log::error(__METHOD__.': '.$log_msg,[
-        //             'order'=>$this->order,
-        //             'transaction'=>$transaction,
-        //             'payment_provider'=>$this->provider
-        //         ]);
-        //         return $paymentResponse;
-        //     }            
-        // }
 
         //
         return $paymentProvider
@@ -282,12 +242,12 @@ class PaymentService extends PaymentProvider
         $amount = $amount ?? $transaction->amount;
 
 
-        if(!$paymentProvider->authoriseProviderTransaction($transaction)){
+        if (!$paymentProvider->authoriseProviderTransaction($transaction)) {
             $paymentResponse->success = false;
-            $paymentResponse->message="Transaction-provider authorisation error";
-            $paymentResponse->errors =$paymentProvider->hasSameLiveModeAsTransaction($transaction)
-            ?['Unauthorised payment transaction with provider']
-            :['Livemode mismatch'];
+            $paymentResponse->message = "Transaction-provider authorisation error";
+            $paymentResponse->errors = $paymentProvider->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $paymentResponse;
         }
 
@@ -297,7 +257,7 @@ class PaymentService extends PaymentProvider
             return $paymentProvider
                 ->refund($cashier, $transaction, $amount, $description);
         } else {
-            
+
             $paymentResponse->message = 'Invalid refund. Please check that there is enough fund available';
             $paymentResponse->errors = [
                 'Invalid refund',
@@ -315,13 +275,13 @@ class PaymentService extends PaymentProvider
     {
         $paymentProvider = $this->providerInstance();
 
-        if(!$paymentProvider->authoriseProviderTransaction($transaction)){
+        if (!$paymentProvider->authoriseProviderTransaction($transaction)) {
             $paymentResponse = new PaymentResponse(PaymentResponse::newType('sync'));
             $paymentResponse->success = false;
-            $paymentResponse->message="Transaction-provider authorisation error";
-            $paymentResponse->errors =$paymentProvider->hasSameLiveModeAsTransaction($transaction)
-            ?['Unauthorised payment transaction with provider']
-            :['Livemode mismatch'];
+            $paymentResponse->message = "Transaction-provider authorisation error";
+            $paymentResponse->errors = $paymentProvider->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $paymentResponse;
         }
 
@@ -349,36 +309,27 @@ class PaymentService extends PaymentProvider
             ->paymentMethod($customerData);
     }
 
-    
+
 
     public function validateRefund(Transaction $transaction, int $refund_amount): bool
     {
         return $this->providerInstance()
-            ->validateRefund($transaction,$refund_amount);
+            ->validateRefund($transaction, $refund_amount);
     }
 
 
-    public function isCancelable(Transaction $transaction):bool{
+    public function isCancelable(Transaction $transaction): bool
+    {
         return $this->providerInstance()
             ->isCancelable($transaction);
     }
 
-    public function isRefundable():bool{
+    public function isRefundable(): bool
+    {
         return $this->providerInstance()
             ->isRefundable();
     }
 
-    // /**
-    //  * Check if the refund is valid
-    //  *  TODO: is this method not meant to be named validateRefund(...)?
-    //  * @return boolean
-    //  */
-    // public function validateTransaction(Transaction $transaction, int $amount): bool
-    // {
-    //     return $this->providerInstance()
-    //         ->config($this->config, $this->livemode)
-    //         ->validateRefund($transaction, $amount);
-    // }
 
     /**
      * Set the custom currency formatter.
@@ -414,35 +365,4 @@ class PaymentService extends PaymentProvider
 
         return $moneyFormatter->format($money);
     }
-
-    //     /**
-    //  * Forward calls to the underlying payment provider
-    //  *
-    //  * @param string $name
-    //  * @param array $arguments
-    //  * @return mixed
-    //  */
-    // public function __call($name, $arguments)
-    // {
-    //     return $this->providerInstance()->{$name}(...$arguments);
-    // }
-
-
-
-    //     /**
-    //  * Forward static calls to payment provider
-    //  *
-    //  * @param string $name
-    //  * @param array $arguments
-    //  * @return mixed
-    //  */
-    // public static function __callStatic($name, $arguments)
-    // {
-    //     return PaymentProvider::$name(...$arguments);
-    // }
 }
-// $ps=new PaymentService(app()->make(PaymentProviderFactory::class));
-// $ps->provider('stripe_intent')
-// ->config([])
-// ->order(new \App\Models\Order)
-// ->init();

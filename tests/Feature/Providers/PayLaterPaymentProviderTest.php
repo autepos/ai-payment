@@ -30,7 +30,7 @@ class PayLaterPaymentProviderTest extends TestCase
         return $paymentProvider;
     }
 
-        /**
+    /**
      * Get the instance of the provider directly
      */
     private function providerInstance(): PayLaterPaymentProvider
@@ -47,7 +47,8 @@ class PayLaterPaymentProviderTest extends TestCase
     {
         $this->assertInstanceOf(PayLaterPaymentProvider::class, $this->resolveProvider());
     }
-    public function test_can_up(){
+    public function test_can_up()
+    {
         $response = $this->providerInstance()->up();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
@@ -55,14 +56,16 @@ class PayLaterPaymentProviderTest extends TestCase
         $this->assertTrue($response->success);
     }
 
-    public function test_can_down(){
+    public function test_can_down()
+    {
         $response = $this->providerInstance()->down();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
         $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
         $this->assertTrue($response->success);
     }
-    public function test_can_ping(){
+    public function test_can_ping()
+    {
         $response = $this->providerInstance()->ping();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
@@ -88,7 +91,7 @@ class PayLaterPaymentProviderTest extends TestCase
 
         $response = $this->providerInstance()
             ->order($mockOrder)
-            ->cashierInit($mockCashier,null);
+            ->cashierInit($mockCashier, null);
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
         $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());

@@ -33,7 +33,7 @@ trait PaymentProviderWebhook
         if ($payment_intent_id) {
             try {
                 $paymentIntent = $this->client()
-                ->paymentIntents->retrieve($payment_intent_id, []);
+                    ->paymentIntents->retrieve($payment_intent_id, []);
 
                 $paymentResponse->message = $paymentIntent->status;
 
@@ -42,13 +42,11 @@ trait PaymentProviderWebhook
                 } else {
                     $paymentResponse->success = false;
                 }
-            }catch (Exception $ex) {
-                $paymentResponse->message="Error ocurred in webhook processing";
-                $paymentResponse->errors=["There was an error while confirming payment through webhook"];
-                Log::error(__METHOD__.': '.$ex->getMessage(),['webhookPaymentIntent'=>$webhookPaymentIntent]);
+            } catch (Exception $ex) {
+                $paymentResponse->message = "Error ocurred in webhook processing";
+                $paymentResponse->errors = ["There was an error while confirming payment through webhook"];
+                Log::error(__METHOD__ . ': ' . $ex->getMessage(), ['webhookPaymentIntent' => $webhookPaymentIntent]);
             }
-
-            
         }
 
         if (!$paymentIntent or $paymentIntent->status != 'succeeded') {

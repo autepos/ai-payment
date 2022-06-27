@@ -3,7 +3,6 @@
 namespace Autepos\AiPayment;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Support\DeferrableProvider;
 use Autepos\AiPayment\Providers\CashPaymentProvider;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\OfflinePaymentProvider;
@@ -11,7 +10,7 @@ use Autepos\AiPayment\Providers\PayLaterPaymentProvider;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 
 
-class AiPaymentServiceProvider extends ServiceProvider 
+class AiPaymentServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
@@ -25,8 +24,7 @@ class AiPaymentServiceProvider extends ServiceProvider
         });
 
         // Merge config with package default config
-        $this->mergeConfigFrom(__DIR__.'/../config/ai-payment.php', 'ai-payment');
-
+        $this->mergeConfigFrom(__DIR__ . '/../config/ai-payment.php', 'ai-payment');
     }
 
     /**
@@ -69,18 +67,18 @@ class AiPaymentServiceProvider extends ServiceProvider
          */
         if ($this->app->runningInConsole()) {
             //
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
             //
             $this->publishes([
-                __DIR__.'/../database/migrations' => $this->app->databasePath('migrations'),
+                __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations'),
             ], 'ai-payment-migrations');
 
 
             //
             $this->publishes([
-                __DIR__.'/../config/ai-payment.php' => config_path('ai-payment.php'),
-            ],'ai-payment-config');
+                __DIR__ . '/../config/ai-payment.php' => config_path('ai-payment.php'),
+            ], 'ai-payment-config');
         }
 
 
@@ -90,6 +88,4 @@ class AiPaymentServiceProvider extends ServiceProvider
          */
         $this->loadRoutesFrom(__DIR__ . '/Providers/StripeIntent/routes/routes.php');
     }
-
-
 }

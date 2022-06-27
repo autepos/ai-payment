@@ -37,7 +37,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('init'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -47,7 +47,7 @@ class PaymentProviderTest extends TestCase
         $mockAbstractPaymentProvider->expects()
             ->cashierInit(Mockery::type(Authenticatable::class))
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked instance
@@ -78,7 +78,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('init'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -91,7 +91,7 @@ class PaymentProviderTest extends TestCase
                 return (is_a($cashier, Authenticatable::class) and ($amount === $split_payment_amount));
             })
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked provider instance
@@ -121,7 +121,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-         
+
         $paymentResponse = new PaymentResponse(new ResponseType('init'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -131,7 +131,7 @@ class PaymentProviderTest extends TestCase
         $mockAbstractPaymentProvider->expects()
             ->init(null) // Null for regular/non-split payment
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked instance
@@ -163,7 +163,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('init'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -176,7 +176,7 @@ class PaymentProviderTest extends TestCase
                 return ($arg === $split_payment_amount);
             })
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked provider instance
@@ -219,7 +219,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('charge'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -230,7 +230,7 @@ class PaymentProviderTest extends TestCase
             ->once()
             ->with(Mockery::type(Transaction::class))
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked provider instance
@@ -264,7 +264,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('init'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -274,7 +274,7 @@ class PaymentProviderTest extends TestCase
         $mockAbstractPaymentProvider->expects()
             ->cashierCharge(Mockery::type(Authenticatable::class), Mockery::type(Transaction::class))
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked instance
@@ -321,7 +321,7 @@ class PaymentProviderTest extends TestCase
 
         // Create a mock of payment provider 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         $paymentResponse = new PaymentResponse(new ResponseType('refund'), true);
 
         $mockAbstractPaymentProvider->expects()
@@ -332,7 +332,7 @@ class PaymentProviderTest extends TestCase
             ->once()
             ->with(Mockery::type(Authenticatable::class), Mockery::type(Transaction::class), Mockery::type('int'), Mockery::type('string'))
             ->andReturn($paymentResponse);
-        
+
 
 
         // Register the payment provider to use the mocked provider instance
@@ -353,32 +353,30 @@ class PaymentProviderTest extends TestCase
         $this->assertInstanceOf(PaymentResponse::class, $response);
     }
 
-    public function test_can_instantiate_customer(){
-        $mockProviderCustomer=Mockery::mock(ProviderCustomer::class);
+    public function test_can_instantiate_customer()
+    {
+        $mockProviderCustomer = Mockery::mock(ProviderCustomer::class);
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         // Now demonstration how the customer method should work, using expectations
         $mockAbstractPaymentProvider->shouldReceive('customer')
-                                    ->andReturn($mockProviderCustomer);// Tests the return type
+            ->andReturn($mockProviderCustomer); // Tests the return type
 
-                
+
         $mockAbstractPaymentProvider->customer();
-
-
     }
 
-    public function test_can_instantiate_payment_method(){
-        $mockProviderPaymentMethod=Mockery::mock(ProviderPaymentMethod::class);
+    public function test_can_instantiate_payment_method()
+    {
+        $mockProviderPaymentMethod = Mockery::mock(ProviderPaymentMethod::class);
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class);
-        
+
         // Now demonstration how the paymentMethod method should work, using expectations
         $mockAbstractPaymentProvider->shouldReceive('paymentMethod')
-                                    ->with(Mockery::type(CustomerData::class)) // Testes the input
-                                    ->andReturn($mockProviderPaymentMethod);// Tests the return type
-
-                
-        $mockAbstractPaymentProvider->paymentMethod(new CustomerData(['user_type'=>'test-user','user_id'=>'test-id','email'=>'test@test.com']));
+            ->with(Mockery::type(CustomerData::class)) // Testes the input
+            ->andReturn($mockProviderPaymentMethod); // Tests the return type
 
 
+        $mockAbstractPaymentProvider->paymentMethod(new CustomerData(['user_type' => 'test-user', 'user_id' => 'test-id', 'email' => 'test@test.com']));
     }
 }

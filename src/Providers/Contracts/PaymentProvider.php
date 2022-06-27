@@ -20,9 +20,6 @@ abstract class PaymentProvider
     use InteractWithTransaction;
     use RefundUtil;
 
-
-
-
     /**
      * The order to process.
      *
@@ -45,7 +42,7 @@ abstract class PaymentProvider
      */
     public function customerData(CustomerData $customerData): self
     {
-        $this->customerData=$customerData;
+        $this->customerData = $customerData;
         return $this;
     }
 
@@ -54,8 +51,7 @@ abstract class PaymentProvider
      */
     protected function getCustomerData(): ?CustomerData
     {
-        return $this->customerData??optional($this->order)->getCustomer();
-        
+        return $this->customerData ?? optional($this->order)->getCustomer();
     }
 
     /**
@@ -74,17 +70,17 @@ abstract class PaymentProvider
     /**
      * Run script to setup the provider
      */
-    public abstract function up():SimpleResponse;
+    public abstract function up(): SimpleResponse;
 
     /**
      * Run scripts to reverse the setup scripts of the provider
      */
-    public abstract function down():SimpleResponse;
+    public abstract function down(): SimpleResponse;
 
     /**
      * Test the connection with the provider
      */
-    public abstract function ping():SimpleResponse;
+    public abstract function ping(): SimpleResponse;
 
 
     /**
@@ -171,7 +167,8 @@ abstract class PaymentProvider
      * 
      * @param integer|string $tenant_id
      */
-    public static function tenant($tenant_id){
+    public static function tenant($tenant_id)
+    {
         Tenant::set($tenant_id);
     }
 
@@ -179,8 +176,8 @@ abstract class PaymentProvider
      * Get the current tenant
      * @return integer|string
      */
-    public static function getTenant(){
+    public static function getTenant()
+    {
         return Tenant::get();
     }
-    
 }

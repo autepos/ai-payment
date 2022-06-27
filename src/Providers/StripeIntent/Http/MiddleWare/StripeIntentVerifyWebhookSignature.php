@@ -1,4 +1,5 @@
 <?php
+
 namespace Autepos\AiPayment\Providers\StripeIntent\Http\MiddleWare;
 
 use Closure;
@@ -14,15 +15,15 @@ class StripeIntentVerifyWebhookSignature
     /**
      *
      * @var StripeIntentPaymentProvider $paymentProvider
-     */ 
+     */
     private $paymentProvider;
 
-    public function __construct(PaymentProviderFactory $paymentManager){
+    public function __construct(PaymentProviderFactory $paymentManager)
+    {
         /**
          * @var \Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider
          */
-        $this->paymentProvider=$paymentManager->driver(StripeIntentPaymentProvider::PROVIDER);
-
+        $this->paymentProvider = $paymentManager->driver(StripeIntentPaymentProvider::PROVIDER);
     }
     /**
      * Handle the incoming request.
@@ -39,11 +40,11 @@ class StripeIntentVerifyWebhookSignature
         $sig_header = $request->header('Stripe-Signature');
 
         //
-        $config=$this->paymentProvider->getConfig();
-        
+        $config = $this->paymentProvider->getConfig();
+
         //Stripe::setApiKey($config['secret_key']);// TODO Although this is found on stripe docs, it is not clear why we need to set api key here. The tests are passing with this commented out.
         $endpoint_secret = $config['webhook_secret'];
-        $tolerance=$config['webhook_tolerance']??Webhook::DEFAULT_TOLERANCE;
+        $tolerance = $config['webhook_tolerance'] ?? Webhook::DEFAULT_TOLERANCE;
 
         try {
             WebhookSignature::verifyHeader(

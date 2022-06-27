@@ -1,6 +1,6 @@
 <?php
 
-use App\Autepos;
+
 use Illuminate\Support\Facades\Schema;
 use Autepos\AiPayment\Tenancy\Tenant;
 use Illuminate\Database\Schema\Blueprint;

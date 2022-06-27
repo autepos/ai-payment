@@ -57,7 +57,6 @@ class PaymentResponse extends BaseResponse
                 'status' => $this->transaction->status,
                 'humans' => $this->transaction->humans,
                 'amount' => $this->transaction->amount,
-                //'decimal' => $this->transaction->amount_decimal
             ];
         }
 

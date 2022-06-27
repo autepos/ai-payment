@@ -41,7 +41,8 @@ trait Configuration
      * Get the configurations that may not be changed at runtime i.e through 
      * the self::config() method.
      */
-    public function getStaticConfig():array{
+    public function getStaticConfig(): array
+    {
         return [];
     }
 
@@ -60,7 +61,8 @@ trait Configuration
      *
      * @return boolean
      */
-    public function isLivemode(){
+    public function isLivemode()
+    {
         return $this->livemode;
     }
 }

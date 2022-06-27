@@ -1,4 +1,5 @@
 <?php
+
 namespace Autepos\AiPayment\Exceptions;
 
 use Autepos\AiPayment\PaymentResponse;
@@ -9,35 +10,36 @@ use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 /**
  * 
  */
-class LivemodeMismatchException extends \Exception implements ExceptionInterface{
+class LivemodeMismatchException extends \Exception implements ExceptionInterface
+{
 
     /**
      * The transaction relating the mismatched
      *
      * @var \Autepos\AiPayment\Models\Transaction
      */
-    protected $transaction=null;
+    protected $transaction = null;
 
     /**
      * The orderable that relates to the mismatched 
      *
      * @var \Autepos\AiPayment\Providers\Contracts\Orderable
      */
-    protected $order=null;
+    protected $order = null;
 
     /**
      * The processing provider during the mismatch
      *
      * @var \Autepos\AiPayment\Providers\Contracts\PaymentProvider
      */
-    protected $paymentProvider=null;
+    protected $paymentProvider = null;
 
     /**
      * The Payment response relating to the mismatch
      *
      * @var \Autepos\AiPayment\PaymentResponse
      */
-    protected $paymentResponse=null;
+    protected $paymentResponse = null;
 
 
     /**
@@ -60,44 +62,49 @@ class LivemodeMismatchException extends \Exception implements ExceptionInterface
 
         return $instance;
     }
-    
+
 
 
     /**
      * Set transaction that mismatched with order
      */
-    public function setTransaction(?Transaction $transaction){
-        $this->transaction=$transaction;
+    public function setTransaction(?Transaction $transaction)
+    {
+        $this->transaction = $transaction;
     }
 
     /**
      * Set the orderable that mismatched with the transaction
      *
      */
-    public function setOrder(?Orderable $order){
-        $this->order=$order;
+    public function setOrder(?Orderable $order)
+    {
+        $this->order = $order;
     }
 
     /**
      * Set the processing payment provider during the mismatch
      *
      */
-    public function setPaymentProvider(?PaymentProvider $paymentProvider){
-        $this->paymentProvider=$paymentProvider;
+    public function setPaymentProvider(?PaymentProvider $paymentProvider)
+    {
+        $this->paymentProvider = $paymentProvider;
     }
 
     /**
      * Set the payment response relating to the mismatch
      *
      */
-    public function setPaymentResponse(?PaymentResponse $paymentResponse){
-        $this->paymentResponse=$paymentResponse;
+    public function setPaymentResponse(?PaymentResponse $paymentResponse)
+    {
+        $this->paymentResponse = $paymentResponse;
     }
 
     /**
      * Get transaction that mismatched with order
      */
-    public function getTransaction():?Transaction{
+    public function getTransaction(): ?Transaction
+    {
         return $this->transaction;
     }
 
@@ -105,7 +112,8 @@ class LivemodeMismatchException extends \Exception implements ExceptionInterface
      * Get the orderable that mismatched with the transaction
      *
      */
-    public function getOrder():?Orderable{
+    public function getOrder(): ?Orderable
+    {
         return $this->order;
     }
 
@@ -113,37 +121,39 @@ class LivemodeMismatchException extends \Exception implements ExceptionInterface
      * Get the processing payment provider during the mismatch
      *
      */
-    public function getPaymentProvider():?PaymentProvider{
+    public function getPaymentProvider(): ?PaymentProvider
+    {
         return $this->paymentProvider;
     }
 
-    
+
     /**
      * Get the payment response relating to the mismatch
      *
      */
-    public function getPaymentResponse():?PaymentResponse{
+    public function getPaymentResponse(): ?PaymentResponse
+    {
         return $this->paymentResponse;
     }
 
-        /**
+    /**
      * Returns the string representation of the exception.
      *
      * @return string
      */
     public function __toString()
     {
-        $transaction_id=$this->transaction ? $this->transaction->id : null;
-        $transaction_livemode=$this->transaction ? intval($this->transaction->livemode) : null;
-        $transaction_payment_provider=$this->transaction ? intval($this->transaction->payment_provider) :  null;
+        $transaction_id = $this->transaction ? $this->transaction->id : null;
+        $transaction_livemode = $this->transaction ? intval($this->transaction->livemode) : null;
+        $transaction_payment_provider = $this->transaction ? intval($this->transaction->payment_provider) :  null;
 
-        $order_key=$this->order ? $this->order->getKey() : null;
-        $order_livemode=$this->order ? intval($this->order->livemode) : null;
+        $order_key = $this->order ? $this->order->getKey() : null;
+        $order_livemode = $this->order ? intval($this->order->livemode) : null;
 
-        $processing_payment_provider=$this->paymentProvider ? $this->paymentProvider->getProvider() : null;
-        $processing_payment_provider_livemode=$this->paymentProvider ? intval($this->paymentProvider->isLivemode()) : null;
+        $processing_payment_provider = $this->paymentProvider ? $this->paymentProvider->getProvider() : null;
+        $processing_payment_provider_livemode = $this->paymentProvider ? intval($this->paymentProvider->isLivemode()) : null;
 
-        $payment_response_errors=$this->paymentResponse ? implode('. ',$this->paymentResponse->errors): null;
+        $payment_response_errors = $this->paymentResponse ? implode('. ', $this->paymentResponse->errors) : null;
 
         return "Transaction: {$transaction_id},
         Transaction livemode, {$transaction_livemode},

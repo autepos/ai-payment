@@ -1,20 +1,22 @@
 <?php
+
 namespace Autepos\AiPayment\Tenancy;
 
 use Illuminate\Database\Schema\Blueprint;
 
-class Tenant{
+class Tenant
+{
     /**
      * The key for storing the tenant id is session or other storage means.
      */
-    private const TENANT_ID_STORAGE_KEY='ai_payment_tenant_id';
+    private const TENANT_ID_STORAGE_KEY = 'ai_payment_tenant_id';
 
-    
-    
+
+
     /**
      * The name for accessing config
      */
-    private const CONFIG_NAME='ai-payment.tenancy';
+    private const CONFIG_NAME = 'ai-payment.tenancy';
 
 
     /**
@@ -22,8 +24,9 @@ class Tenant{
      *
      * @return array
      */
-    public static function getConfig(){
-        return config(static::CONFIG_NAME,[]);
+    public static function getConfig()
+    {
+        return config(static::CONFIG_NAME, []);
     }
 
     /**
@@ -32,25 +35,26 @@ class Tenant{
      * @param Blueprint $table
      * @return void
      */
-    public static function addSchemaColumn(Blueprint $table){
-        $config=static::getConfig();
-        if(true==$config['is_column_type_integer']){
+    public static function addSchemaColumn(Blueprint $table)
+    {
+        $config = static::getConfig();
+        if (true == $config['is_column_type_integer']) {
             $table->unsignedInteger($config['column_name'])->default($config['default']);
-        }else{
+        } else {
             $table->string($config['column_name'])->default($config['default']);
-            
         }
     }
 
-    
-        /**
+
+    /**
      * Set the tenant id
      *
      * @param integer|string $tenant_id
      * @return void
      */
-    public static function set($tenant_id){
-       
+    public static function set($tenant_id)
+    {
+
         //$_SESSION[static::TENANT_ID_STORAGE_KEY]=$tenant_id;
         //session()->put(static::TENANT_ID_STORAGE_KEY,$tenant_id);
 
@@ -58,18 +62,18 @@ class Tenant{
         // above using sessions is somehow not working.
         // NOTE: THE USE OF app() HERE ASSUMES THAT WE ARE RUNNING INSIDE A LARAVEL 
         // ENVIRONMENT. THEREFORE THIS PACKAGE IS A LARAVEL-ONLY PACKAGE. 
-        app()->bind(static::TENANT_ID_STORAGE_KEY,function()use($tenant_id){
+        app()->bind(static::TENANT_ID_STORAGE_KEY, function () use ($tenant_id) {
             return $tenant_id;
         });
-        
     }
 
     /**
      * Get the current tenant id
      * @return integer|string
      */
-    public static function get(){
-        return static::getDefined()??static::getDefault();
+    public static function get()
+    {
+        return static::getDefined() ?? static::getDefault();
     }
 
     /**
@@ -77,7 +81,8 @@ class Tenant{
      *
      * @return string|int|null
      */
-    public static function getDefined(){
+    public static function getDefined()
+    {
         //return $_SESSION[static::TENANT_ID_STORAGE_KEY];
         //session()->get(static::TENANT_ID_STORAGE_KEY);
 
@@ -86,7 +91,7 @@ class Tenant{
         // NOTE: THE USE OF app() HERE ASSUMES THAT WE ARE RUNNING INSIDE A LARAVEL 
         // ENVIRONMENT. THEREFORE THIS PACKAGE IS A LARAVEL-ONLY PACKAGE. 
 
-        $app=app();
+        $app = app();
         if ($app->has(static::TENANT_ID_STORAGE_KEY)) {
             return $app->make(static::TENANT_ID_STORAGE_KEY);
         }
@@ -98,7 +103,8 @@ class Tenant{
      *
      * @return string
      */
-    public static function getColumnName(){
+    public static function getColumnName()
+    {
         return static::getConfig()['column_name'];
     }
     /**
@@ -106,7 +112,8 @@ class Tenant{
      *
      * @return string
      */
-    public static function globalScopeName(){
+    public static function globalScopeName()
+    {
         return static::getConfig()['global_scope_name'];
     }
 
@@ -115,16 +122,18 @@ class Tenant{
      *
      * @return boolean
      */
-    public static function isMultiTenant(){
+    public static function isMultiTenant()
+    {
         return !!static::getConfig()['enable_multi_tenant'];
     }
-    
+
     /**
      * Get the default tenant
      *
      * @return string|int|null
      */
-    public static function getDefault(){
+    public static function getDefault()
+    {
         return static::getConfig()['default'];
     }
 }

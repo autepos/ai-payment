@@ -21,12 +21,10 @@ class TransactionFactory extends Factory
      */
     public function definition()
     {
-       return [
-            'payment_provider'=>$this->faker->word(),
-            'orderable_amount'=>100,
-            'amount'=>0,
+        return [
+            'payment_provider' => $this->faker->word(),
+            'orderable_amount' => 100,
+            'amount' => 0,
         ];
     }
-
-    
 }

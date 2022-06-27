@@ -50,7 +50,7 @@ abstract class DTO
 
                 // Valid members
                 $this->validateMember($prop);
-                
+
 
                 // Validate type
                 if (in_array($prop, $types) and !is_null($val)) {
@@ -60,7 +60,7 @@ abstract class DTO
                 }
             }
 
-            
+
 
             // set the values
             foreach ($props as $field => $val) {
@@ -73,7 +73,8 @@ abstract class DTO
      * Validate that given property is a defined member of the class.
      * @throws \InvalidArgumentException argument has no associated class property.
      */
-    private function validateMember(string $property_name){
+    private function validateMember(string $property_name)
+    {
         if (!\property_exists(static::class, $property_name)) {
             throw new \InvalidArgumentException('Unknown field: ' . $property_name . ' for ' . get_class($this));
         }
@@ -113,6 +114,4 @@ abstract class DTO
     {
         return $this->{$key};
     }
-
-
 }

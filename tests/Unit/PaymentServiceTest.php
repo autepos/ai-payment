@@ -163,11 +163,11 @@ class PaymentServiceTest extends TestCase
 
         //
         $this->assertInstanceOf(PaymentResponse::class, $response);
-       
-    
+
+
         $this->assertFalse($response->success);
-        $this->assertSame('Transaction-provider authorisation error',$response->message);
-        $this->assertSame(['Unauthorised payment transaction with provider'],$response->errors);
+        $this->assertSame('Transaction-provider authorisation error', $response->message);
+        $this->assertSame(['Unauthorised payment transaction with provider'], $response->errors);
     }
     public function test_cannot_sync_transaction_if_provider_transaction_is_not_authorised_because_of_livemode_mismatch()
     {
@@ -201,11 +201,11 @@ class PaymentServiceTest extends TestCase
 
         //
         $this->assertInstanceOf(PaymentResponse::class, $response);
-       
-    
+
+
         $this->assertFalse($response->success);
-        $this->assertSame('Transaction-provider authorisation error',$response->message);
-        $this->assertSame(['Livemode mismatch'],$response->errors);
+        $this->assertSame('Transaction-provider authorisation error', $response->message);
+        $this->assertSame(['Livemode mismatch'], $response->errors);
     }
 
     public function test_can_obtain_customer_implementation()

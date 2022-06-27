@@ -5,9 +5,9 @@ namespace Autepos\AiPayment\Providers;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
-use Autepos\AiPayment\SimpleResponse;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
@@ -25,16 +25,19 @@ class OfflinePaymentProvider extends PaymentProvider
      */
     const VERSION = '1.0.0';
 
-    public function up():SimpleResponse{
-        return new SimpleResponse(SimpleResponse::newType('save'),true);
+    public function up(): SimpleResponse
+    {
+        return new SimpleResponse(SimpleResponse::newType('save'), true);
     }
 
-    public function down():SimpleResponse{
-        return new SimpleResponse(SimpleResponse::newType('save'),true);
+    public function down(): SimpleResponse
+    {
+        return new SimpleResponse(SimpleResponse::newType('save'), true);
     }
 
-    public function ping():SimpleResponse{
-        return new SimpleResponse(SimpleResponse::newType('ping'),true);
+    public function ping(): SimpleResponse
+    {
+        return new SimpleResponse(SimpleResponse::newType('ping'), true);
     }
 
     public function init(int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
@@ -88,27 +91,27 @@ class OfflinePaymentProvider extends PaymentProvider
     {
         $paymentResponse = new PaymentResponse(PaymentResponse::newType('charge'));
 
-        
+
 
         //
         if (is_null($transaction)) {
             $transaction = $this->cashierInit($cashier, null)->getTransaction();
         }
 
-        
+
         //
-        if(!$this->authoriseProviderTransaction($transaction)){// TODO: this should already have been taken care of by the PaymentService
+        if (!$this->authoriseProviderTransaction($transaction)) { // TODO: this should already have been taken care of by the PaymentService
             $paymentResponse->success = false;
-            $paymentResponse->errors =$this->hasSameLiveModeAsTransaction($transaction)
-            ?['Unauthorised payment transaction with provider']
-            :['Livemode mismatch'];
+            $paymentResponse->errors = $this->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $paymentResponse;
         }
 
         $transaction->amount = $transaction->orderable_amount; // Set the actual paid amount 
         $transaction->amount_refunded = 0;
         $transaction->success = true;
-        $transaction->status='success';
+        $transaction->status = 'success';
         $transaction->refund = false;
 
         $transaction->cashier_id = $cashier->getAuthIdentifier();
@@ -126,27 +129,27 @@ class OfflinePaymentProvider extends PaymentProvider
 
         $response = new PaymentResponse(PaymentResponse::newType('refund'));
 
-        
+
 
 
         //
-        if(!$this->authoriseProviderTransaction($transaction)){//TODO: This should already been taken care of by PaymentService
+        if (!$this->authoriseProviderTransaction($transaction)) { //TODO: This should already been taken care of by PaymentService
             $response->success = false;
 
-            $response->errors =$this->hasSameLiveModeAsTransaction($transaction)
-                                ?['Unauthorised payment transaction with provider']
-                                :['Livemode mismatch'];
+            $response->errors = $this->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $response;
         }
 
-        if ($this->validateRefund($transaction, $amount)) {//TODO: Note that validating the refund should already been taken care of by PaymentService
+        if ($this->validateRefund($transaction, $amount)) { //TODO: Note that validating the refund should already been taken care of by PaymentService
             DB::beginTransaction();
             try {
 
                 $trans_id = (string)Str::uuid();
                 $refundTransaction = $this->newTransaction(0);
 
-                $refundTransaction->orderable_id=$transaction->orderable_id;
+                $refundTransaction->orderable_id = $transaction->orderable_id;
 
                 // Set the amounts according to refund rules
                 $refundTransaction->amount = 0;

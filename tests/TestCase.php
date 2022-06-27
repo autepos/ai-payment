@@ -8,13 +8,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
     protected function getEnvironmentSetUp($app)
     {
-        
-        config()->set('database.connections.mysql.engine','InnoDB');
 
+        config()->set('database.connections.mysql.engine', 'InnoDB');
     }
-    
 
-        /**
+
+    /**
      * Get package providers.
      *
      * @param  \Illuminate\Foundation\Application  $app

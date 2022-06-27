@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 class OrderableTransactionsTotaled
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    
+
     /**
      * The orderable for which the total has been computed.
      *
@@ -27,7 +27,7 @@ class OrderableTransactionsTotaled
      *
      * @var integer
      */
-    public $total_paid=0;
+    public $total_paid = 0;
     /**
      * The transaction that triggered this event.
      *
@@ -38,7 +38,7 @@ class OrderableTransactionsTotaled
 
     public $afterCommit = true;
 
-    
+
     /**
      * Create a new event instance.
      * 
@@ -48,11 +48,11 @@ class OrderableTransactionsTotaled
      * 
      * @return void
      */
-    public function __construct($orderable_id,int $total_paid,Transaction $triggeringTransaction)
+    public function __construct($orderable_id, int $total_paid, Transaction $triggeringTransaction)
     {
-        $this->orderable_id=$orderable_id;
-        $this->total_paid=$total_paid;
-        $this->triggeringTransaction=$triggeringTransaction;
+        $this->orderable_id = $orderable_id;
+        $this->total_paid = $total_paid;
+        $this->triggeringTransaction = $triggeringTransaction;
     }
 
     /**

@@ -24,12 +24,8 @@ class PaymentProviderCustomerFactory extends Factory
      */
     public function definition()
     {
-       return [
-            'payment_provider'=>$this->faker->word(),
+        return [
+            'payment_provider' => $this->faker->word(),
         ];
     }
-
-    
-
-    
 }

@@ -42,20 +42,16 @@ class Transaction extends Model
     public const LOCAL_STATUS_COMPLETE = 'complete';
 
 
-
-
-
     protected $casts = [
         'escrow_expires_at' => 'date',
-        'escrow_claimed_at'=>'date',
-        //'orderable_detail_ids'=>'array',
-        'livemode'=>'boolean',
-        'refund'=>'boolean',
-        'through_webhook'=>'boolean',
-        'display_only'=>'boolean',
-        'success'=>'boolean',
-        'retrospective'=>'boolean',
-        'meta'=>'array',
+        'escrow_claimed_at' => 'date',
+        'livemode' => 'boolean',
+        'refund' => 'boolean',
+        'through_webhook' => 'boolean',
+        'display_only' => 'boolean',
+        'success' => 'boolean',
+        'retrospective' => 'boolean',
+        'meta' => 'array',
 
 
     ];
@@ -98,7 +94,8 @@ class Transaction extends Model
      *
      * @return boolean
      */
-    public function isLivemode(){
+    public function isLivemode()
+    {
         return $this->livemode;
     }
 
@@ -108,7 +105,7 @@ class Transaction extends Model
      */
     private function updateOrder(): bool
     {
-        $total_paid = self::totalPaid($this->orderable_id,$this->livemode??false);
+        $total_paid = self::totalPaid($this->orderable_id, $this->livemode ?? false);
         OrderableTransactionsTotaled::dispatch($this->orderable_id, $total_paid, $this);
         return true;
     }
@@ -117,7 +114,7 @@ class Transaction extends Model
     /**
      * Compute the effective amount for an orderable given by id.  
      */
-    public static function totalPaid(string $orderable_id,bool $livemode=false): int
+    public static function totalPaid(string $orderable_id, bool $livemode = false): int
     {
 
         /**
@@ -150,7 +147,7 @@ class Transaction extends Model
      */
     public function getHumansAttribute(): string
     {
-        return PaymentService::formatAmount($this->amount,$this->currency);
+        return PaymentService::formatAmount($this->amount, $this->currency);
     }
     /**
      * The calculated the effective total amount. 
@@ -164,8 +161,9 @@ class Transaction extends Model
      * Check if this transaction is provided by the given provider
      *
      */
-    public function isForPaymentProvider(string $payment_provider):bool{
-        return $this->payment_provider==$payment_provider;
+    public function isForPaymentProvider(string $payment_provider): bool
+    {
+        return $this->payment_provider == $payment_provider;
     }
 
     /**
@@ -182,31 +180,22 @@ class Transaction extends Model
      */
     public function isValidRefundAmount(int $refund_amount): bool
     {
-        return (($this->amount-abs($this->amount_refunded)) >= $refund_amount);
+        return (($this->amount - abs($this->amount_refunded)) >= $refund_amount);
     }
 
-    //     /**
-    //  * Checks if the transaction can be cancelled
-    //  * This can used to check if the underlying orderable can be cancel after 
-    //  * payment transaction. E.g if payment is made in error, an orderable may be 
-    //  * canceled so that the associated order items may be marked as unpaid. A refund 
-    //  * may then be processed by the cashier following the cancellation.
-    //  */
-    // public function isCancelable():bool{
-    //     return count($this->orderable_detail_ids??[])==0;
-    // }
 
     /**
      * Get customer data DTO from the details available in the transaction
      * @return CustomerData|null Null is returned if there is not enough detail to create the customer data which happens if the transaction is made by/for guest customer
-     * @todo No phpunit test
+     * @todo No phpunit test //todo
      */
-    public function toCustomerData():?CustomerData{
+    public function toCustomerData(): ?CustomerData
+    {
 
         if ($this->user_type and $this->user_id) {
             return new CustomerData([
-                'user_type'=>$this->user_type??'',
-                'user_id'=>$this->user_id
+                'user_type' => $this->user_type ?? '',
+                'user_id' => $this->user_id
             ]);
         }
         return null;

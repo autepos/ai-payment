@@ -4,9 +4,9 @@ namespace Autepos\AiPayment\Tests\Feature;
 
 
 use Mockery;
-use Autepos\AiPayment\Tests\TestCase;
 use Mockery\MockInterface;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -39,7 +39,7 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class)->makePartial();
@@ -83,7 +83,7 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
 
@@ -100,7 +100,7 @@ class InteractWithTransactionTest extends TestCase
         ]);
 
         //
-        $transaction = $partialMockAbstractPaymentProvider->newTransaction( 
+        $transaction = $partialMockAbstractPaymentProvider->newTransaction(
             $amount,
             Transaction::LOCAL_STATUS_INIT,
             'unknown', //status
@@ -145,7 +145,7 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class)->makePartial();
@@ -177,7 +177,7 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
         $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class)->makePartial();
@@ -203,14 +203,14 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldNotReceive('getAmount');
 
-    
+
         $mockOrderableInterface->shouldReceive('getCurrency')
             ->once()
             ->andReturn('gbp');
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
 
@@ -249,7 +249,7 @@ class InteractWithTransactionTest extends TestCase
 
         $mockOrderableInterface->shouldReceive('getCustomer')
             ->once()
-            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
 
 

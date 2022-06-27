@@ -46,12 +46,13 @@ class StripeIntentPaymentProvider extends PaymentProvider
     /**
      * The endpoint path for webhook.
      */
-    public static $webhookEndpoint='stripe/webhook';
+    public static $webhookEndpoint = 'stripe/webhook';
 
 
 
-    public function up():SimpleResponse{
-        $response= new SimpleResponse(SimpleResponse::newType('save'));
+    public function up(): SimpleResponse
+    {
+        $response = new SimpleResponse(SimpleResponse::newType('save'));
 
 
 
@@ -64,62 +65,60 @@ class StripeIntentPaymentProvider extends PaymentProvider
 
             // Go ahead and create new webhook
             $endpoint = $this->client()->webhookEndpoints->create([
-            'enabled_events' => [
-                Event::PAYMENT_INTENT_SUCCEEDED,
-                Event::PAYMENT_METHOD_ATTACHED,
-                Event::PAYMENT_METHOD_DETACHED,
-                Event::PAYMENT_METHOD_UPDATED,
-                Event::PAYMENT_METHOD_AUTOMATICALLY_UPDATED,
-                Event::CUSTOMER_DELETED,
-            ],
+                'enabled_events' => [
+                    Event::PAYMENT_INTENT_SUCCEEDED,
+                    Event::PAYMENT_METHOD_ATTACHED,
+                    Event::PAYMENT_METHOD_DETACHED,
+                    Event::PAYMENT_METHOD_UPDATED,
+                    Event::PAYMENT_METHOD_AUTOMATICALLY_UPDATED,
+                    Event::CUSTOMER_DELETED,
+                ],
                 'url' => $this->webhookEndpointUrl(),
                 'api_version' => static::STRIPE_VERSION,
             ]);
-            $response->success=true;
-            $response->message="The Stripe webhook was created successfully. Retrieve the webhook secret in your Stripe dashboard and set it in your Stripe config";
-        }catch(Exception $ex){
-            $response->message='An error occurred';
-            $response->errors=[$ex->getMessage()];
-
-
+            $response->success = true;
+            $response->message = "The Stripe webhook was created successfully. Retrieve the webhook secret in your Stripe dashboard and set it in your Stripe config";
+        } catch (Exception $ex) {
+            $response->message = 'An error occurred';
+            $response->errors = [$ex->getMessage()];
         }
         return $response;
-
     }
 
-    public function down():SimpleResponse{
+    public function down(): SimpleResponse
+    {
 
-        $response= new SimpleResponse(SimpleResponse::newType('save'));
+        $response = new SimpleResponse(SimpleResponse::newType('save'));
 
         try {
             $this->deleteWebhook();
 
-            $response->success=true;
-            $response->message="Webhooks has been deleted";
-        }catch(Exception $ex){
-            $response->message='An error occurred';
-            $response->errors=[$ex->getMessage()];
-
+            $response->success = true;
+            $response->message = "Webhooks has been deleted";
+        } catch (Exception $ex) {
+            $response->message = 'An error occurred';
+            $response->errors = [$ex->getMessage()];
         }
         return $response;
     }
 
-    public function ping():SimpleResponse{
-        $SimpleResponse= new SimpleResponse(SimpleResponse::newType('ping'));
+    public function ping(): SimpleResponse
+    {
+        $SimpleResponse = new SimpleResponse(SimpleResponse::newType('ping'));
 
-        try{
-            $paymentIntents=$this->client()->paymentIntents->all(['limit'=>1]);
+        try {
+            $paymentIntents = $this->client()->paymentIntents->all(['limit' => 1]);
 
-            if ($paymentIntents->object=='list' and is_array($paymentIntents->data)) {
-                $SimpleResponse->success=true;
+            if ($paymentIntents->object == 'list' and is_array($paymentIntents->data)) {
+                $SimpleResponse->success = true;
                 return $SimpleResponse;
             }
-        }catch(\Exception $ex){// Catch anything
-            $SimpleResponse->message=$ex->getMessage();
+        } catch (\Exception $ex) { // Catch anything
+            $SimpleResponse->message = $ex->getMessage();
         }
 
-        $SimpleResponse->message=$SimpleResponse->message??'A likely communication issue';
-        $SimpleResponse->errors=['There might be an issue with communicating with Stripe API with the current configurations'];
+        $SimpleResponse->message = $SimpleResponse->message ?? 'A likely communication issue';
+        $SimpleResponse->errors = ['There might be an issue with communicating with Stripe API with the current configurations'];
         return $SimpleResponse;
     }
 
@@ -139,14 +138,14 @@ class StripeIntentPaymentProvider extends PaymentProvider
         // Amount
         $amount = $amount ?? $order->getAmount();
 
-        
+
         //
         $transaction = $this->getInitTransaction($amount, $transaction);
 
         // Get the payment_intent
-        $payment_intent_id =$transaction->transaction_family_id;
-        
-       
+        $payment_intent_id = $transaction->transaction_family_id;
+
+
         //
         $orderable_id = $order->getKey();
         $customer = $this->getCustomerData();
@@ -174,13 +173,13 @@ class StripeIntentPaymentProvider extends PaymentProvider
         ];
 
 
-        $paymentProviderCustomer=ProviderCustomer::isGuest($customer)
+        $paymentProviderCustomer = ProviderCustomer::isGuest($customer)
             ? null
             : $this->customer()->toPaymentProviderCustomerOrCreate($customer);
 
-        if ($paymentProviderCustomer) {//if ($paymentProviderCustomer = PaymentProviderCustomer::fromCustomerData($customer, $this)) {
+        if ($paymentProviderCustomer) { //if ($paymentProviderCustomer = PaymentProviderCustomer::fromCustomerData($customer, $this)) {
             $paymentIntent_data['customer'] = $paymentProviderCustomer->payment_provider_customer_id;
-            $paymentIntent_data['setup_future_usage'] = 'on_session';// 'off_session' can cause more decline according Stripe.
+            $paymentIntent_data['setup_future_usage'] = 'on_session'; // 'off_session' can cause more decline according Stripe.
 
 
             // Check if Stripe payment method is sent along
@@ -188,10 +187,9 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 $paymentProviderCustomerPaymentMethod = $paymentProviderCustomer->paymentMethods()
                     ->where('payment_provider_payment_method_id', $data['payment_provider_payment_method_id'])
                     ->first();
-                    
+
                 if ($paymentProviderCustomerPaymentMethod) {
                     $paymentIntent_data['payment_method'] = $paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id;
-                    
                 }
             }
 
@@ -199,10 +197,9 @@ class StripeIntentPaymentProvider extends PaymentProvider
             elseif (isset($data['payment_provider_customer_payment_method_id'])) {
                 $paymentProviderCustomerPaymentMethod = $paymentProviderCustomer->paymentMethods()
                     ->find($data['payment_provider_customer_payment_method_id']);
-                    
+
                 if ($paymentProviderCustomerPaymentMethod) {
                     $paymentIntent_data['payment_method'] = $paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id;
-                    
                 }
             }
         }
@@ -214,10 +211,10 @@ class StripeIntentPaymentProvider extends PaymentProvider
             if ($payment_intent_id) {
                 try {
                     $paymentIntent = $this->client()
-                    ->paymentIntents->update($payment_intent_id, $paymentIntent_data, [
-                        //'idempotency_key'=>$transaction->id,//TODO: we may need to implement idenpotency. We are updating the intent which means it won't have the same parameters as the previous request, so we should not give it idempotency_key of previous request. So a new idenpotency key is needed each time we update.
-                    ]);
-                }catch(\Stripe\Exception\ApiErrorException $ex){
+                        ->paymentIntents->update($payment_intent_id, $paymentIntent_data, [
+                            //'idempotency_key'=>$transaction->id,//TODO: we may need to implement idenpotency. We are updating the intent which means it won't have the same parameters as the previous request, so we should not give it idempotency_key of previous request. So a new idenpotency key is needed each time we update.
+                        ]);
+                } catch (\Stripe\Exception\ApiErrorException $ex) {
                     // Just swallow the error, we will create a new intent below instead
                 }
             }
@@ -241,7 +238,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 //$transaction->save();
             }
 
-            if($transaction->isDirty() or !$transaction->exists){
+            if ($transaction->isDirty() or !$transaction->exists) {
                 $transaction->save();
             }
 
@@ -256,15 +253,14 @@ class StripeIntentPaymentProvider extends PaymentProvider
             foreach ($output as $key => $val) {
                 $response->setClientSideData($key, $val);
             }
-
         } catch (\Stripe\Exception\ApiErrorException $ex) {
-            $response->message="Error ocurred";
-            $response->errors=["There was an error while initialising payment. Please contact us"];
-            Log::error($ex->getMessage(),['orderable'=>$this->order,'amount'=>$amount,'data'=>$data,'transaction'=>$transaction,'customer'=>$customer]);
-        }catch(Exception $ex){
-            $response->message="Error ocurred";
-            $response->errors=["A problem prevented initialising payment, please try again"];
-            Log::error($ex->getMessage(),['orderable'=>$this->order,'amount'=>$amount,'data'=>$data,'transaction'=>$transaction,'customer'=>$customer]);
+            $response->message = "Error ocurred";
+            $response->errors = ["There was an error while initialising payment. Please contact us"];
+            Log::error($ex->getMessage(), ['orderable' => $this->order, 'amount' => $amount, 'data' => $data, 'transaction' => $transaction, 'customer' => $customer]);
+        } catch (Exception $ex) {
+            $response->message = "Error ocurred";
+            $response->errors = ["A problem prevented initialising payment, please try again"];
+            Log::error($ex->getMessage(), ['orderable' => $this->order, 'amount' => $amount, 'data' => $data, 'transaction' => $transaction, 'customer' => $customer]);
         }
 
 
@@ -280,7 +276,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
      */
     public function charge(Transaction $transaction, array $data = []): PaymentResponse
     {
-        return $this->chargeByRetrieval($transaction,null,$data);
+        return $this->chargeByRetrieval($transaction, null, $data);
     }
 
     /**
@@ -291,7 +287,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
      */
     public function cashierCharge(Authenticatable $cashier, Transaction $transaction, array $data = []): PaymentResponse
     {
-        return $this->chargeByRetrieval($transaction, $cashier,$data);
+        return $this->chargeByRetrieval($transaction, $cashier, $data);
     }
 
 
@@ -302,16 +298,16 @@ class StripeIntentPaymentProvider extends PaymentProvider
 
         $paymentResponse = new PaymentResponse(PaymentResponse::newType('refund'));
 
-         //
-        if(!$this->authoriseProviderTransaction($transaction)){//TODO: This should already been taken care of by PaymentService
+        //
+        if (!$this->authoriseProviderTransaction($transaction)) { //TODO: This should already been taken care of by PaymentService
             $paymentResponse->success = false;
-            $paymentResponse->errors =$this->hasSameLiveModeAsTransaction($transaction)
-            ?['Unauthorised payment transaction with provider']
-            :['Livemode mismatch'];
+            $paymentResponse->errors = $this->hasSameLiveModeAsTransaction($transaction)
+                ? ['Unauthorised payment transaction with provider']
+                : ['Livemode mismatch'];
             return $paymentResponse;
         }
 
-        if (!$this->validateRefund($transaction, $amount)) {//TODO: This should already been taken care of by PaymentService
+        if (!$this->validateRefund($transaction, $amount)) { //TODO: This should already been taken care of by PaymentService
             $paymentResponse->message = 'Invalid refund. Check that their is enough fund available';
             $paymentResponse->errors = [
                 'Invalid refund',
@@ -340,7 +336,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 ]);
         } catch (ApiErrorException $ex) {
             $paymentResponse->message = $ex->getMessage();
-        }catch (Exception $ex) {
+        } catch (Exception $ex) {
             $paymentResponse->message = $ex->getMessage();
         }
 
