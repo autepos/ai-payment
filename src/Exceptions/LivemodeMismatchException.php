@@ -144,25 +144,31 @@ class LivemodeMismatchException extends \Exception implements ExceptionInterface
     public function __toString()
     {
         $transaction_id = $this->transaction ? $this->transaction->id : null;
-        $transaction_livemode = $this->transaction ? intval($this->transaction->livemode) : null;
-        $transaction_payment_provider = $this->transaction ? intval($this->transaction->payment_provider) :  null;
+        $transaction_livemode = $this->transaction ? intval($this->transaction->livemode) : '-';
+        $transaction_payment_provider = $this->transaction ? $this->transaction->payment_provider :  null;
 
-        $order_key = $this->order ? $this->order->getKey() : null;
-        $order_livemode = $this->order ? intval($this->order->livemode) : null;
-
+        $order_key = $this->order ? $this->order->getKey() : '';
+        $order_livemode = $this->order ? intval($this->order->livemode) : '-';
+        
         $processing_payment_provider = $this->paymentProvider ? $this->paymentProvider->getProvider() : null;
-        $processing_payment_provider_livemode = $this->paymentProvider ? intval($this->paymentProvider->isLivemode()) : null;
+        $processing_payment_provider_livemode = $this->paymentProvider ? intval($this->paymentProvider->isLivemode()) : '-';
 
         $payment_response_errors = $this->paymentResponse ? implode('. ', $this->paymentResponse->errors) : null;
+
+        $parent_str= parent::__toString();
 
         return "Transaction: {$transaction_id},
         Transaction livemode, {$transaction_livemode},
         Transaction payment provider, {$transaction_payment_provider},
         Order: {$order_key},
         Order livemode: {$order_livemode}, 
-        processor payment provider: '{$processing_payment_provider}, 
+        processing payment provider: '{$processing_payment_provider}, 
         processing payment provider live mode: {$processing_payment_provider_livemode}, 
         payment response errors: {$payment_response_errors}, 
-        Message: {$this->getMessage()}";
+        Message: {$this->getMessage()}
+        ------------
+        {$parent_str}
+        ";
+
     }
 }

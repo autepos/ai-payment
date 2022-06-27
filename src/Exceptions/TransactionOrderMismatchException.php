@@ -144,16 +144,32 @@ class TransactionOrderMismatchException extends \Exception implements ExceptionI
      */
     public function __toString()
     {
+        $transaction_id = $this->transaction ? $this->transaction->id : null;
+        $transaction_payment_provider = $this->transaction ? intval($this->transaction->payment_provider) :  null;
+        $transaction_livemode=$this->transaction?intval($this->transaction->livemode):'-';
+
+        $order_key = $this->order ? $this->order->getKey() : '';
+        $order_livemode = $this->order ? intval($this->order->livemode) : null;
+
+        $processing_payment_provider = $this->paymentProvider ? $this->paymentProvider->getProvider() : null;
+
+        $payment_provider_livemode=$this->paymentProvider?intval($this->paymentProvider->isLivemode()):'-';
+
         $payment_response_errors = $this->paymentResponse ? implode('. ', $this->paymentResponse->errors) : null;
 
-        return "Transaction: {$this->transaction->id},
-        Transaction livemode, {intval($this->transaction->livemode)},
-        Transaction payment provider, {intval($this->transaction->payment_provider)},
-        Order: {$this->orderable->getKey()},
-        Order livemode: {intval($this->order->livemode)}, 
-        processor payment provider: '{$this->paymentProvider->getProvider()}, 
-        processing payment provider live mode: {intval($this->paymentProvider->isLivemode())},
+        $parent_str= parent::__toString();
+
+        return "Transaction: {$transaction_id},
+        Transaction livemode: {$transaction_livemode},
+        Transaction payment provider: {$transaction_payment_provider},
+        Order: {$order_key},
+        Order livemode: {$order_livemode}, 
+        processor payment provider: {$processing_payment_provider}, 
+        processing payment provider live mode: {$payment_provider_livemode},
         payment response errors: {$payment_response_errors},  
-        Message: {$this->getMessage()}";
+        Message: {$this->getMessage()}
+        ------------
+        {$parent_str}
+        ";
     }
 }
