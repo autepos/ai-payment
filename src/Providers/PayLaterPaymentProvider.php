@@ -2,6 +2,7 @@
 
 namespace Autepos\AiPayment\Providers;
 
+use Autepos\AiPayment\PaymentService;
 use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
@@ -21,7 +22,7 @@ class PayLaterPaymentProvider extends PaymentProvider
      *
      * @var string
      */
-    const VERSION = '1.0.0';
+    const VERSION = PaymentService::VERSION;
 
     public function up(): SimpleResponse
     {

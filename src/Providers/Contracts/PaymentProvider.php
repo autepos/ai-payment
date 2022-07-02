@@ -3,12 +3,13 @@
 namespace Autepos\AiPayment\Providers\Contracts;
 
 
+use Autepos\AiPayment\PaymentService;
 use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\Tenancy\Tenant;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\CustomerData;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Providers\Contracts\Concerns\RefundUtil;
 use Autepos\AiPayment\Providers\Contracts\Concerns\Configuration;
 use Autepos\AiPayment\Providers\Contracts\Concerns\InteractWithTransaction;
@@ -179,5 +180,14 @@ abstract class PaymentProvider
     public static function getTenant()
     {
         return Tenant::get();
+    }
+
+    /**
+     * Returns the library version
+     *
+     */
+    public static function version(): string
+    {
+        return PaymentService::VERSION;
     }
 }

@@ -3,20 +3,21 @@
 namespace Autepos\AiPayment\Providers\StripeIntent;
 
 use Exception;
+use Stripe\Event;
+use Illuminate\Support\Facades\Log;
+use Autepos\AiPayment\PaymentService;
 use Autepos\AiPayment\SimpleResponse;
-use Stripe\Exception\ApiErrorException;
 use Autepos\AiPayment\PaymentResponse;
+use Stripe\Exception\ApiErrorException;
 use Autepos\AiPayment\Models\Transaction;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\CustomerData;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
 use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\Concerns\PaymentProviderSync;
 use Autepos\AiPayment\Providers\StripeIntent\Concerns\PaymentProviderUtils;
 use Autepos\AiPayment\Providers\StripeIntent\Concerns\PaymentProviderWebhook;
-use Illuminate\Support\Facades\Log;
-use Stripe\Event;
 
 class StripeIntentPaymentProvider extends PaymentProvider
 {
@@ -34,7 +35,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
      *
      * @var string
      */
-    const VERSION = '1.0.0';
+    const VERSION = PaymentService::VERSION;
 
     /**
      * The Stripe API version.

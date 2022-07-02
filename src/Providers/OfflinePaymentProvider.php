@@ -5,6 +5,7 @@ namespace Autepos\AiPayment\Providers;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Autepos\AiPayment\PaymentService;
 use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
@@ -23,7 +24,7 @@ class OfflinePaymentProvider extends PaymentProvider
      *
      * @var string
      */
-    const VERSION = '1.0.0';
+    const VERSION = PaymentService::VERSION;
 
     public function up(): SimpleResponse
     {

@@ -15,7 +15,7 @@ use Autepos\AiPayment\Models\Factories\TransactionFactory;
 /**
  * Transaction information.
  * 
- * @property int $id
+ * @property int $id the primary key
  * @property string|int ${tenant-id}  the id of the owner tenant
  * @property int $parent_id the transaction the this transaction is related to, i.e for self join
  * @property string $cashier_id the id of an admin user/if any, who processed the transaction.
@@ -26,15 +26,15 @@ use Autepos\AiPayment\Models\Factories\TransactionFactory;
  * @property int  $amount_escrow_claimed the total amount claimed from escrow. NOTE: This should only be used to only locally determine the remaining amount to be claimed; it should not be used for any other calculations.
  * @property \Carbon\Carbon  $escrow_claimed_at the date of last escrow claim
  * @property \Carbon\Carbon  $escrow_expires_at the expiry date of escrow
- * @property int $amount total amount received from this transaction. Must be 0 for a refund-only transaction(i.e refund=true). Must always be positive.
+ * @property int $amount total amount received from this transaction. Must be 0 for a refund-only transaction(i.e column 'refund'=true). Must always be positive.
  * @property int $amount_refunded total refunded for this transaction. Must always be negative.
  * @property string $transaction_family the transaction family/object name. E.g Stripe's 'payment_intent','refund', 'charge' etc 
  * @property string transaction_family_id this should uniquely identify the family/group within this transaction. E.g the corresponding Stripe's payment_intent_id
- * @property string $transaction_child_id This represents a unique item belonging to transaction family with id of
- * transaction_family_id. 
- * E.g a charge_id on the corresponding Stripe's payment_intent_id. Typically 
- * for Stripe a payment intent will have an array of charge objects. So the 
- * id of the charge objects goes here.        
+ * @property string $transaction_child_id this represents a unique item belonging to transaction family with id of
+ * transaction_family_id.  
+ * E.g a charge_id on the corresponding Stripe's payment_intent_id=transaction_family_id. Typically 
+ * for Stripe a payment intent will have an array of charge objects where only one is successful. So the 
+ * id of the corresponding charge object goes here.        
  * @property bool $success determines if transaction has succeeded
  * @property bool $refund  the transaction is a refund-only transaction when this is TRUE.
  * @property bool $display_only when TRUE the transaction is a dummy and should not be involved in calculations      

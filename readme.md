@@ -5,37 +5,62 @@ To obtain payment service, build it through the container so its dependencies ar
 $paymentService=app(\Autepos\AiPayment\PaymentService::class)
 ```
 
-### Orderable
-Whenever an order is required in a payment operation, you should provide a class that implements the \Autepos\AiPayment\Providers\Contract\Orderable interface.
-
 ### Init
-Initialise payment operation:
+Initialise full order payment operation:
 ```php
-$order=new Order; // Order must implement \Autepos\AiPayment\Providers\Contract\Orderable interface
+/**
+ * @var \Autepos\AiPayment\Providers\Contracts\Orderable 
+ */ 
+$order=new Order;
 
-$amount=100;
+//
+$config=[
+    'test_publishable_key'=>'...',
+    'test_secret_key'=>'...'
+    'webhook_secret'=>'...',
+]
+$livemode=false;
 $paymentResponse = $paymentService->provider('stripe_intent')
-                                ->init($order,$amount);
+                                ->config($config,$livemode)
+                                ->order($order)
+                                ->init();
 
 $transaction=$paymentResponse->transaction;
 ```
+Initialise part/split order payment operation:
+```php
+$paymentResponse = $paymentService->provider('stripe_intent')
+                                ->config($config)
+                                ->order($order)
+                                ->init(100);
+
+
+```
 By a cashier on behalf of a customer,
 ```php
-$cashier=\App\Models\Admin::find(1);//Authenticatable
+/**
+ * @var \Illuminate\Contracts\Auth\Authenticatable
+ */ 
+$cashier=\App\Models\Admin::find(1);
+
+//
 $paymentResponse = $paymentService->provider('stripe_intent')
-                                    ->cashierInit($cashier,$order,$amount);
+                                    ->config($config)
+                                    ->order($order)
+                                    ->cashierInit($cashier);
 ```
 
 ### Charge
 Charge a transaction
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->charge($transaction);//$transaction may be returned during init above
 ```
 By a cashier on behalf of a customer,
 ```php
-$cashier=\App\Models\Admin::find(1);//Authenticatable
 $paymentResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->cashierCharge($cashier,$transaction);
 ```
 
@@ -43,6 +68,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 Refund a payment
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->refund($transaction);
 ```
 
@@ -50,6 +76,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 Sync local data with data held by the provider:
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->syncTransaction($transaction);
 ```
 
@@ -57,18 +84,21 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 Run setup scripts
 ```php
 $simpleResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->up();
 ```
 
 Run reverse of setup scripts
 ```php
 $simpleResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->down();
 ```
 
 Ping the provider
 ```php
 $simpleResponse = $paymentService->provider('stripe_intent')
+                                    ->config($config)
                                     ->ping();
 ```
 
@@ -89,6 +119,41 @@ class OnOrderableTransactionsTotaled
     }
 }
 ```
+
+## Provider customer
+A payment provider can implement a customer which can be retrieved as follows:
+```php
+/**
+ * @var \Autepos\AiPayment\Providers\Contracts\ProviderCustomer
+ */ 
+$providerCustomer=$paymentService->provider('stripe_intent')
+->config($config)
+->customer();
+```
+
+The methods exposed by the provider customer allows for creating a customer with the payment provider to link the local account details.
+// todo the rest of this documentation 
+
+## Provider payment method
+A payment provider can implement a payment method which can be retrieved as follows:
+```php
+use \Autepos\AiPayment\Contracts\CustomerData;
+
+$customerData=new CustomerData([
+    'user_id'=>null,
+    'user_type'=>'guest'
+])
+
+/**
+ * @var \Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod
+ */ 
+$providerPaymentMethod=$paymentService->provider('stripe_intent')
+->config($config)
+->paymentMethod($customerData);
+```
+The methods exposed by the provider payment method allows you to save a payment method for a customer for reuse in a future payment.
+// todo the rest of this documentation 
+
 ## Adding an additional payment provider
 Define payment provider class e.g for Bitcoin payment:
 ```php

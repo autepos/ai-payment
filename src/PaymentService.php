@@ -28,6 +28,13 @@ use \Autepos\AiPayment\Exceptions\TransactionPaymentProviderMismatchException;
 class PaymentService extends PaymentProvider
 {
     /**
+     * The payment service library version.
+     *
+     * @var string
+     */
+    const VERSION = '1.0.0';
+    
+    /**
      * Provider
      *
      * @var string
