@@ -3,19 +3,18 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 use Mockery;
-use Autepos\AiPayment\Tests\TestCase;
-use Autepos\AiPayment\SimpleResponse;
+use Stripe\WebhookEndpoint;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\SimpleResponse;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\CustomerData;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
-
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
-use Stripe\WebhookEndpoint;
 
 class StripeIntentPaymentProvider_CashierAndSyncTest extends TestCase
 {

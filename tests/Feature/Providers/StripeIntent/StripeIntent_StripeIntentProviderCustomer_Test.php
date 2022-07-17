@@ -3,16 +3,15 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 
-use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\CustomerResponse;
 use Illuminate\Foundation\Testing\WithFaker;
 use Autepos\AiPayment\Contracts\CustomerData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
-
-use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentCustomer;
+use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 
 
 class StripeIntent_StripeIntentCustomer_Test extends TestCase

@@ -5,11 +5,10 @@ namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 use Autepos\AiPayment\Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
-use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
+use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentCustomer;
+use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 
 
 class StripeIntent_CustomerWebhook_Test extends TestCase

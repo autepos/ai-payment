@@ -309,7 +309,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
             return $paymentResponse;
         }
 
-        if (!$this->validateRefund($transaction, $amount)) { //TODO: This should already been taken care of by PaymentService
+        if (!$this->validateRefund($transaction, $amount)) { // TODO: Delete this block and the related test as this has already been taken care of by the PaymentService
             $paymentResponse->message = 'Invalid refund. Check that their is enough fund available';
             $paymentResponse->errors = [
                 'Invalid refund',

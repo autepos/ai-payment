@@ -3,11 +3,11 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 
-use Autepos\AiPayment\Tests\TestCase;
+use Stripe\StripeClient;
 
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
-use Stripe\StripeClient;
 
 class StripeIntent_PaymentProviderUtils_Test extends TestCase
 {

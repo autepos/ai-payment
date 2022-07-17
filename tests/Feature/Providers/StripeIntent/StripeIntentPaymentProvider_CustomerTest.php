@@ -3,15 +3,15 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 use Mockery;
+use Autepos\AiPayment\ResponseType;
 use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;
-use Autepos\AiPayment\ResponseType;
 use Autepos\AiPayment\Contracts\CustomerData;
-use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
+use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 
 

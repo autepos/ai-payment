@@ -6,8 +6,8 @@ namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 use Autepos\AiPayment\Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Autepos\AiPayment\Contracts\CustomerData;
-use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 

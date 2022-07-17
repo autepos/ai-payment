@@ -3,9 +3,9 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers;
 
 use Mockery;
-use Autepos\AiPayment\Tests\TestCase;
-use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\SimpleResponse;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Contracts\Auth\Authenticatable;

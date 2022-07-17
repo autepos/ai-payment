@@ -108,7 +108,7 @@ class PaymentService extends PaymentProvider
     
     }
     /** 
-     * TODO: unit test
+     * @todo unit test
      * Get config and livemode for the given payment provider using a configuration 
      * function defined by the programmer.
      * 

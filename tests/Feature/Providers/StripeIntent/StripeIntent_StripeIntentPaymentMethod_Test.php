@@ -9,7 +9,6 @@ use Autepos\AiPayment\PaymentMethodResponse;
 use Autepos\AiPayment\Contracts\CustomerData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
-
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 

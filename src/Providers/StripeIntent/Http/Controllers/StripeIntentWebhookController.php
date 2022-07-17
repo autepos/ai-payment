@@ -60,7 +60,6 @@ class StripeIntentWebhookController extends Controller
         //
         $config = $this->paymentProvider->getConfig();
 
-        //Stripe::setApiKey($config['secret_key']);// TODO Although this is found on stripe docs, it is not clear why we need to set api key here. The tests are passing with this commented out.
         $endpoint_secret = $config['webhook_secret'];
         $tolerance = $config['webhook_tolerance'] ?? Webhook::DEFAULT_TOLERANCE;
 
@@ -96,7 +95,7 @@ class StripeIntentWebhookController extends Controller
         // Validate request if possible
         $config = $this->paymentProvider->getConfig();
         $endpoint_secret = $config['webhook_secret'];
-        
+
         // Validate webhook if webhook secret is set
         if (!is_null($endpoint_secret)) {
             $this->validateWebhookRequest($this->request);

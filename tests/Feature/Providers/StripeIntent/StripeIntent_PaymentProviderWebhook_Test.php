@@ -3,8 +3,8 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
 
-use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;

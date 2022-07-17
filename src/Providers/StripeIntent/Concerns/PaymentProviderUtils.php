@@ -371,7 +371,6 @@ trait PaymentProviderUtils
 
 
         //
-        //$transaction->orderable_detail_ids=$paymentIntent->metadata->orderable_detail_ids;
         $transaction->orderable_amount = $paymentIntent->metadata->orderable_amount ?? 0;
 
 

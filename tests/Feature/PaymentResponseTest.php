@@ -2,8 +2,8 @@
 
 namespace Autepos\AiPayment\Tests\Feature;
 
-use Autepos\AiPayment\Tests\TestCase;
 use Illuminate\Http\Response;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;

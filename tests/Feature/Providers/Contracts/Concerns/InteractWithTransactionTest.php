@@ -52,7 +52,7 @@ class InteractWithTransactionTest extends TestCase
 
 
         //
-        $transaction = $mockAbstractPaymentProvider->newTransaction(); // TODO: check why Mockery allows us to call protected methods
+        $transaction = $mockAbstractPaymentProvider->newTransaction(); 
 
         $this->assertInstanceOf(Transaction::class, $transaction);
         $this->assertEquals($this->provider, $transaction->payment_provider);

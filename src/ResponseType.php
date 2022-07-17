@@ -5,7 +5,7 @@ namespace Autepos\AiPayment;
 use InvalidArgumentException;
 
 /**
- * TODO: Need to convert to enum when in PHP 8.1
+ * @todo Need to convert to enum when in PHP 8.1
  */
 class ResponseType
 {

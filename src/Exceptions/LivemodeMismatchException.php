@@ -7,9 +7,7 @@ use Autepos\AiPayment\Models\Transaction;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
-/**
- * 
- */
+
 class LivemodeMismatchException extends \Exception implements ExceptionInterface
 {
 

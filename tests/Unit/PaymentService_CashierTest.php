@@ -4,9 +4,9 @@ namespace Autepos\AiPayment\Tests\Unit;
 
 
 use Mockery;
-use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\ResponseType;
 use Autepos\AiPayment\PaymentService;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;

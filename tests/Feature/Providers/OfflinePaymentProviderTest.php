@@ -3,18 +3,18 @@
 namespace Autepos\AiPayment\Tests\Feature\Providers;
 
 use Mockery;
-use Autepos\AiPayment\Tests\TestCase;
-use Autepos\AiPayment\SimpleResponse;
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\SimpleResponse;
+use Autepos\AiPayment\Tests\TestCase;
 use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\CustomerData;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Autepos\AiPayment\Providers\OfflinePaymentProvider;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
+use Autepos\AiPayment\Providers\OfflinePaymentProvider;
 
 class OfflinePaymentProviderTest extends TestCase
 {

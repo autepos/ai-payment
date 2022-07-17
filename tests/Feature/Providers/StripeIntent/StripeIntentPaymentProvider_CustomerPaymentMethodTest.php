@@ -2,16 +2,16 @@
 
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
-use Autepos\AiPayment\Models\Transaction;
 use Mockery;
+use Stripe\PaymentIntent;
+use Illuminate\Support\Facades\Log;
 use Autepos\AiPayment\Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Autepos\AiPayment\Models\Transaction;
 use Autepos\AiPayment\PaymentMethodResponse;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentMethod;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
-use Illuminate\Support\Facades\Log;
-use Stripe\PaymentIntent;
 
 
 class StripeIntentPaymentProvider_CustomerPaymentMethodTest extends TestCase

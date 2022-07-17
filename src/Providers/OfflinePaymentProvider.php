@@ -101,7 +101,7 @@ class OfflinePaymentProvider extends PaymentProvider
 
 
         //
-        if (!$this->authoriseProviderTransaction($transaction)) { // TODO: this should already have been taken care of by the PaymentService
+        if (!$this->authoriseProviderTransaction($transaction)) { // TODO: Delete this block and the related test as this has already been taken care of by the PaymentService
             $paymentResponse->success = false;
             $paymentResponse->errors = $this->hasSameLiveModeAsTransaction($transaction)
                 ? ['Unauthorised payment transaction with provider']
