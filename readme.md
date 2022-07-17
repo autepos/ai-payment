@@ -1,5 +1,10 @@
 # Introduction
 AiPayment is a uniform payment interface for Laravel that simplifies payment mechanisms that allow you to implement embeddable UI components that delegate the handling of sensitive  payment data to your payment provider for security purposes. You can keep customers on your application during payment transaction without handling their sensitive payment details.
+
+## Installation
+```
+composer require autepos/ai-payment
+```
 ## Usage
 To obtain payment service, build it through the container so its dependencies are auto resolved:
 ```php
