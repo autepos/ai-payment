@@ -6,6 +6,7 @@ use Exception;
 use Stripe\StripeClient;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
+use Stripe\WebhookSignature;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Autepos\AiPayment\PaymentResponse;
@@ -60,11 +61,21 @@ trait PaymentProviderUtils
      */
     public function client(array $data = []): StripeClient
     {
+        $secret_key=$this->getConfig()['secret_key'];
+
+        if ($secret_key and !$this->isLivemode()){
+            if(strpos($secret_key, 'sk_test_')!==0) {
+                throw new \InvalidArgumentException('Tests may not be run with a production Stripe key.');
+            }
+        }
+
+
+        //
         if (count($data)) {
             return new StripeClient($data);
         }
         return new StripeClient([
-            'api_key' => $this->getConfig()['secret_key'],
+            'api_key' => $secret_key,
             "stripe_version" => static::STRIPE_VERSION
         ]);
     }
@@ -109,6 +120,28 @@ trait PaymentProviderUtils
     {
         return (new StripeIntentPaymentMethod)
             ->provider($this);
+    }
+    
+    /**
+     * A wrapper for \Stripe\WebhookSignature::verifyHeader() to facilitate testing.
+     * @see \Stripe\WebhookSignature::verifyHeader() dor detailed description.
+     * 
+     * NOTE: Unfortunately this method is non-static to make testing easier.
+     * 
+     * @param string $payload
+     * @param string $header
+     * @param string $secret
+     * @param int $tolerance
+     * @return bool
+     * @throws Exception\SignatureVerificationException — if the verification fails
+     */
+    public function verifyWebhookHeader($payload,$header,$secret,$tolerance = null){
+        return WebhookSignature::verifyHeader(
+            $payload,
+            $header,
+            $secret,
+            $tolerance
+        );
     }
 
 

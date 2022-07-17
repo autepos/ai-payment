@@ -11,6 +11,7 @@ use Autepos\AiPayment\Models\Factories\PaymentProviderCustomerFactory;
 
 /**
  * @property int $id Model key
+ * @property string|int ${tenant-id}  the id of the owner tenant 
  * @property string $payment_provider The payment provider tag
  * @property string $payment_provider_customer_id The id the payment provider uses to identify this customer
  * @property string $user_type The local user type

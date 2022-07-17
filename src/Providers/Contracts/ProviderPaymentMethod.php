@@ -49,14 +49,17 @@ abstract class ProviderPaymentMethod
     public abstract function init(array $data): PaymentMethodResponse;
 
     /**
-     * Go to provider to save a payment method for the underlying customer
+     * Go to provider to save a payment method for the underlying customer. Also creates a 
+     * local record for the payment method.
      */
     public abstract function save(array $data): PaymentMethodResponse;
 
 
     /**
-     * Go to provider to remove payment method specified
+     * Go to provider to remove payment method specified. Also remove a 
+     * local record for the payment method.
      *
+     * @todo this should be named delete() to match PaymentProviderCustomer::delete().
      */
     public abstract function remove(PaymentProviderCustomerPaymentMethod $paymentMethod): PaymentMethodResponse;
 

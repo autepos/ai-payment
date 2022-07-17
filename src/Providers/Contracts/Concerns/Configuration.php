@@ -2,6 +2,7 @@
 
 namespace Autepos\AiPayment\Providers\Contracts\Concerns;
 
+use Autepos\AiPayment\PaymentService;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
 trait Configuration
@@ -35,6 +36,15 @@ trait Configuration
         }
 
         return $this;
+    }
+
+    /**
+     * Set configuration including livemode using a user function.
+     *
+     */
+    public function configUsingFcn(): PaymentProvider{
+        [$config,$livemode]=PaymentService::getConfigUsingFcn($this->getProvider(),static::getTenant());
+        return $this->config($config,$livemode);
     }
 
     /**

@@ -41,7 +41,12 @@ class PaymentService extends PaymentProvider
      */
     protected $provider;
 
-
+    /**
+     * The custom configuration function.
+     *
+     * @var callable
+     */
+    protected static $getConfigUsing;
 
     /**
      * The custom currency formatter.
@@ -90,6 +95,46 @@ class PaymentService extends PaymentProvider
     {
         return $this->manager->driver($this->provider)
             ->config($this->config, $this->livemode);
+    }
+
+    /**
+     * Set the configuration function
+     *
+     * @param  callable  $callback
+     * @return void
+     */
+    public static function getConfigUsing(callable $callback){
+        static::$getConfigUsing = $callback;
+    
+    }
+    /** 
+     * TODO: unit test
+     * Get config and livemode for the given payment provider using a configuration 
+     * function defined by the programmer.
+     * 
+     * This method is useful when the provider need to automatically set the config and 
+     * livemode such as when handling a webhook.
+     * 
+     * @param string $payment_provider
+     * @param mixed $tenant_id
+     * 
+     * @return array [config(array),livemode(bool)]
+     * @throws \InvalidArgumentException if static::$getConfigUsing returns an invalid value.
+     */
+    public static function getConfigUsingFcn(string $payment_provider,$tenant_id){
+        
+        if (static::$getConfigUsing) {
+
+            [$config,$livemode] =call_user_func(static::$getConfigUsing, $payment_provider,$tenant_id);
+
+            // Validate return value.
+            if(is_array($config) and is_bool($livemode)){
+                return [$config,$livemode];
+            }else{
+                throw new \InvalidArgumentException('The user function, getConfigUsing, must return return an array with config(array) as first item and livemode(bool) as second, i.e. array(array(),bool)');
+            }
+        }
+        return [[],false];
     }
 
 

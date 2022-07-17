@@ -123,7 +123,7 @@ class StripeIntentPaymentProvider_CustomerPaymentMethodTest extends TestCase
         //
         Log::shouldReceive('warning')->withArgs(function ($msg) {
             return strpos($msg, 'Issue with saving ' . $this->provider . ' payment method') === 0;
-        });
+        })->once();
 
 
         //

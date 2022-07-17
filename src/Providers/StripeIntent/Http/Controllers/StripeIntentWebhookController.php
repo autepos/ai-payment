@@ -2,15 +2,17 @@
 
 namespace Autepos\AiPayment\Providers\StripeIntent\Http\Controllers;
 
+use Stripe\Webhook;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Stripe\Exception\SignatureVerificationException;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
 use Autepos\AiPayment\Providers\StripeIntent\Events\StripeIntentWebhookHandled;
 use Autepos\AiPayment\Providers\StripeIntent\Events\StripeIntentWebhookReceived;
-use Autepos\AiPayment\Providers\StripeIntent\Http\MiddleWare\StripeIntentVerifyWebhookSignature;
 use Autepos\AiPayment\Providers\StripeIntent\Http\Controllers\Concerns\CustomerWebhookEventHandlers;
 use Autepos\AiPayment\Providers\StripeIntent\Http\Controllers\Concerns\PaymentMethodWebhookEventHandlers;
 use Autepos\AiPayment\Providers\StripeIntent\Http\Controllers\Concerns\PaymentProviderWebhookEventHandlers;
@@ -24,21 +26,83 @@ class StripeIntentWebhookController extends Controller
     /**
      * @var \Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider
      */
-    private $paymentProvider;
+    protected $paymentProvider;
+
+    /**
+     * The request from the payment provider i.e the webhook request object.
+     *
+     * @var Request
+     */
+    protected $request;
 
     public function __construct(PaymentProviderFactory $paymentManager)
     {
-
         /**
          * @var \Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider
          */
         $this->paymentProvider = $paymentManager->driver(StripeIntentPaymentProvider::PROVIDER);
+    }
 
+    /**
+     * Validate request
+     * NOTE: Unfortunately for testing purposes, we have to make this method public,
+     * otherwise it should be protected.
+     *
+     * @return bool
+     * @throws AccessDeniedHttpException If the request fails validation
+     */
+    public function validateWebhookRequest(Request $request)
+    {
+
+        $payload = $request->getContent();
+        $sig_header = $request->header('Stripe-Signature');
+
+        //
         $config = $this->paymentProvider->getConfig();
 
-        if ($config['webhook_secret']) {
-            $this->middleware(StripeIntentVerifyWebhookSignature::class);
+        //Stripe::setApiKey($config['secret_key']);// TODO Although this is found on stripe docs, it is not clear why we need to set api key here. The tests are passing with this commented out.
+        $endpoint_secret = $config['webhook_secret'];
+        $tolerance = $config['webhook_tolerance'] ?? Webhook::DEFAULT_TOLERANCE;
+
+        try {
+            $this->paymentProvider->verifyWebhookHeader(
+                $payload,
+                $sig_header,
+                $endpoint_secret,
+                $tolerance
+            );
+        } catch (SignatureVerificationException $exception) {
+            throw new AccessDeniedHttpException($exception->getMessage(), $exception);
         }
+
+        return true;
+    }
+
+    /**
+     * Prepare to handle the request and validate the request only if it is possible
+     * 
+     * @param mixed $tenant_id
+     * @return bool
+     * @throws AccessDeniedHttpException If the request fails validation
+     */
+    protected function prepareToHandleRequest($tenant_id)
+    {
+        // Set the tenant
+        StripeIntentPaymentProvider::tenant($tenant_id);
+
+        // Configure the payment provider using a callback
+        $this->paymentProvider->configUsingFcn();
+
+        // Validate request if possible
+        $config = $this->paymentProvider->getConfig();
+        $endpoint_secret = $config['webhook_secret'];
+        
+        // Validate webhook if webhook secret is set
+        if (!is_null($endpoint_secret)) {
+            $this->validateWebhookRequest($this->request);
+        }
+
+        return true;
     }
 
 
@@ -50,7 +114,9 @@ class StripeIntentWebhookController extends Controller
      */
     public function handleWebhook(Request $request)
     {
+        $this->request = $request;
 
+        //
         $payload = $request->getContent();
         $data = \json_decode($payload, true);
         $jsonError = \json_last_error();

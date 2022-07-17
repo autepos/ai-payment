@@ -127,7 +127,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
      * @inheritDoc
      * @param array $data [
      *      'payment_provider_payment_method_id'=>(string) \Stripe\PaymentMethod::id which should be used to init the payment intent.
-     *      'payment_provider_customer_payment_method_id'=>(integer) An id of a user saved payment method i.e PaymentProviderCustomerPaymentMethod model (representing a \Stripe\PaymentMethod::id) that should be used to init the intent. It will be ignored if 'payment_provider_payment_method_id' data is provided
+     *      'payment_provider_customer_payment_method_id'=>(integer) An id of a user saved payment method i.e PaymentProviderCustomerPaymentMethod model (representing a \Stripe\PaymentMethod::id) that should be used to init the intent. It will be ignored if 'payment_provider_payment_method_id' data is provided. //TODO this will be replaced with uid
      * ]
      */
     public function init(int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
@@ -155,6 +155,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
             'currency' => $transaction->currency,
             // Verify your integration in this guide by including this parameter
             'metadata' => [
+                'tenant_id'=>static::getTenant(),
                 'transaction_id' => $transaction->id,
 
                 // We store enough info here so that we can recreate the transaction
@@ -330,6 +331,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                     'payment_intent' => $payment_intent_id,
                     'reason' => $description,
                     'metadata' => [
+                        'tenant_id'=>static::getTenant(),
                         'orderable_id' => $transaction->orderable_id,
                         'transaction_parent_id' => $transaction->id,
                         'cashier_id' => $cashier->getAuthIdentifier(),

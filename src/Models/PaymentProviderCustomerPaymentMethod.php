@@ -9,6 +9,7 @@ use Autepos\AiPayment\Models\Factories\PaymentProviderCustomerPaymentMethodFacto
 
 /**
  * @property int $id Model key
+ * @property string|int ${tenant-id}  the id of the owner tenant
  * @property string $payment_provider The payment provider tag. A persistance of the payment provider from the parent table, payment_provider_customer.
  * @property string $payment_provider_payment_method_id The id the provider uses to uniquely identify this payment method e.g for Stripe, this will be the PaymentMethod->id.
  * @property integer $payment_provider_customer_id Note that this is for relationship with payment_provider_customers table. It just happen by chance to have the same name as 'payment_provider_customer_id' in payment_provider_customers.

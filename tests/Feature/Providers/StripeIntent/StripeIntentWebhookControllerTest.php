@@ -68,7 +68,7 @@ class WebhookControllerTestStub extends StripeIntentWebhookController
 {
     public function __construct()
     {
-        // Don't call parent constructor to prevent setting middleware...
+        
     }
 
     public function handleTestSucceeded()

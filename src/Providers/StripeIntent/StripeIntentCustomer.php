@@ -88,6 +88,7 @@ class StripeIntentCustomer extends ProviderCustomer
         return $this->provider->client()
             ->customers->create([
                 'metadata' => [
+                    'tenant_id'=>$this->provider->getTenant(),
                     'user_type' => $customerData->user_type, // Note: no current use for this metadata
                     'user_id' => $customerData->user_id, // Note: no current use for this metadata
                 ]

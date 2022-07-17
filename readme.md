@@ -1,4 +1,5 @@
-# Payment
+# Introduction
+AiPayment is a uniform payment interface for Laravel that simplifies payment mechanisms that allow you to implement embeddable UI components that delegate the handling of sensitive  payment data to your payment provider for security purposes. You can keep customers on your application during payment transaction without handling their sensitive payment details.
 ## Usage
 To obtain payment service, build it through the container so its dependencies are auto resolved:
 ```php
@@ -6,7 +7,7 @@ $paymentService=app(\Autepos\AiPayment\PaymentService::class)
 ```
 
 ### Init
-Initialise full order payment operation:
+Initialise a full order payment operation:
 ```php
 /**
  * @var \Autepos\AiPayment\Providers\Contracts\Orderable 
@@ -27,7 +28,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 
 $transaction=$paymentResponse->transaction;
 ```
-Initialise part/split order payment operation:
+That is all. Alternatively, you can initialise part/split order payment operation:
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                 ->config($config)
@@ -36,7 +37,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 
 
 ```
-By a cashier on behalf of a customer,
+Also a cashier can initialise payment on behalf of a customer,
 ```php
 /**
  * @var \Illuminate\Contracts\Auth\Authenticatable
@@ -51,13 +52,13 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 ```
 
 ### Charge
-Charge a transaction
+ After the payment is initialised, the next thing is to create a charge,
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                     ->config($config)
                                     ->charge($transaction);//$transaction may be returned during init above
 ```
-By a cashier on behalf of a customer,
+A cashier can also create the charge on behalf of a customer,
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                     ->config($config)
@@ -65,7 +66,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 ```
 
 ### Refund
-Refund a payment
+A successful charge can be refunded,
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                     ->config($config)
@@ -73,7 +74,7 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 ```
 
 ### Sync transaction
-Sync local data with data held by the provider:
+The local charge data, a.k.a transaction can be syncronised with the corresponding data held by the provider,
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                     ->config($config)
@@ -108,12 +109,14 @@ Therefore you can listen to the events normally. Additionally whenever a Transac
 ```php
 class OnOrderableTransactionsTotaled
 {
+    use \App\Models\Order;
+
     /**
      * Handle the event.
      */
     public function handle(OrderableTransactionsTotaled $event)
     {
-        $order=\App\Models\Order::find($event->orderable_id);
+        $order=Order::find($event->orderable_id);
         $order->total_paid=$event->total_paid;
         $order->save();
     }
@@ -131,8 +134,29 @@ $providerCustomer=$paymentService->provider('stripe_intent')
 ->customer();
 ```
 
-The methods exposed by the provider customer allows for creating a customer with the payment provider to link the local account details.
-// todo the rest of this documentation 
+The methods exposed by the provider customer allows for creating a customer with the payment provider to link the local account details. For example, to create a Stripe customer for a local user, you can do the following:
+
+```php
+use \Autepos\AiPayment\Contracts\CustomerData;
+
+$customerData=new CustomerData([
+    'user_id'=>1,
+    'user_type'=>'customer'
+]);
+$customerResponse=$providerCustomer->create($customerData);
+$paymentProviderCustomer=$customerResponse->getPaymentProviderCustomer();
+```
+That's it. This will create a local record linked with a newly created Stripe customer object. The object ```$paymentProviderCustomer``` is your new local record of the customer. It is an Eloquent model introduced later. You can delete the customer by thus:
+
+```php
+$customerResponse=$providerCustomer->delete($paymentProviderCustomer);
+if($customerResponse->success){
+    // both local and Stripe records have been removed
+}
+```
+
+
+
 
 ## Provider payment method
 A payment provider can implement a payment method which can be retrieved as follows:
@@ -151,8 +175,39 @@ $providerPaymentMethod=$paymentService->provider('stripe_intent')
 ->config($config)
 ->paymentMethod($customerData);
 ```
-The methods exposed by the provider payment method allows you to save a payment method for a customer for reuse in a future payment.
-// todo the rest of this documentation 
+The method exposed by the provider payment method allow you to save a payment method for a customer for reuse in a future payment. To save a payment method, you will need to provided any data required by the payment method implementation. For Stripe intent, the required data is the payment method id.
+
+```php
+$data=['payment_method_id'=>'pm_1LFRDP2eZvKYlo2C6NTvKmDS'];
+$paymentMethodResponse=$providerPaymentMethod->save($data);
+$paymentProviderCustomerPaymentMethod=$paymentMethodResponse->getPaymentProviderCustomerPaymentMethod();
+```
+Note that the API saves rather create a new payment method. The creation of the payment can be handled elsewhere or in the frontend. The creation process should acquire the $data input required to save the payment method against the customer. If the creation processing requires a server-side initialisation, this can be performed using the ```init()``` method of the ```$providerPaymentMethod``` which should return the required initialisation data as part of a response object. For Stripe intent, a customer will be created for the underlying $customerData if one does not exists. 
+
+The object, $paymentProviderCustomerPaymentMethod is an Eloquent model introduced later. It stores the local record of the provider payment. The host app can directly access the model to use it for a payment in the future. As an example, for Stripe intent, you could do the following to reuse a saved payment method for a new payment:
+
+```php
+$data=[
+    'payment_provider_payment_method_id'=>$paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id
+    ];
+$paymentResponse = $paymentService->provider('stripe_intent')
+                                ->config($config,$livemode)
+                                ->order($order)
+                                ->init(null,$data);
+$paymentResponse = $paymentService->charge($transaction);
+
+if($paymentResponse->success){
+    // payment was successful.
+}
+```
+
+To remove the payment method you can use the ```remove``` method,
+```php
+$paymentMethodResponse=$payment$providerPaymentMethod->remove($paymentProviderCustomerPaymentMethod);
+if($paymentMethodResponse->success){
+    // the record has been removed locally and at Stripe.
+}
+```
 
 ## Adding an additional payment provider
 Define payment provider class e.g for Bitcoin payment:
@@ -171,7 +226,7 @@ $paymentManager->extend('bitcoin', function($app){
     return $app->make(BitcoinPaymentProvider::class);
 });
 ```
-That is it, but if you are using the provider in Autepos you should add a record for it:
+That is it, but if you are using the provider in Autepos, you should add a record for it:
 ```php
 $pm= new \Autepos\Models\PaymentMethod;
 $pm->provider='bitcoin';// unique_provider_tag
@@ -233,6 +288,8 @@ Tenancy is supported but it is disabled by default. You can enable tenancy by se
 ...
 ```
 
+Even with tenancy enabled, a given implementation of payment provider may not support it. The default payment providers support tenancy. 
+
 You should always as the first thing before interacting with Payment provider or Models  of payment provider( eg. model Transaction, etc) call:
 ```php
 \Autepos\AiPayment\Tenancy\Tenant::set('current_tenant_id');
@@ -262,6 +319,19 @@ composer test
 ```
 
 ## TODO
+### Add a public id to tables
+Instead of sharing id of models to the world, we should add a column to tables which stores a unique hash. The column values should be fairly random. The column names can be one of the following:
+1. pid - public id/persistent id
+2. iid - internet id
+3. rid - resource id
+4. uid - unique
+
+This change involves adding the new column to all tables and hiding the id column in all model array serialisations (i.e. $hidden=[..., 'id']). Add a unique index($tenant_id-$uid) Following these changes the StripeIntentPaymentProvider should be updated to add as Stripe metadata the new column value rather than the model id, e.g ['metadata'=>['transaction_id'=>$transaction->$uid].
+Also when saving method for StripeIntentPaymentProvider the PaymentProviderCustomerPaymentMethod::id should not be used instead the new column should be used.
+
+### Payment method general state data
+Create a storage to create a general state for payment providers, e.g installation status 
+
 ### Renaming 'init' and 'charge' to 'create' and 'confirm' respectively:
 **CONSIDER:** *With the new names `create` and `confirm` it become a little unnatural that we have refund() and syncTransactions within the same namespace the new names. For e.g. is the confirm() for the refund() or the create(). Of course it is for create() but it is not immediately obvious. So although the new names may improve the feel of the api further restructuring may be required to get the full benefit*
 1. PaymentProvider contract: rename init() to create() and charge() to confirm()

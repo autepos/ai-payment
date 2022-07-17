@@ -1,16 +1,17 @@
 <?php
 namespace Autepos\AiPayment\Tests\Feature\Providers\StripeIntent;
 
-use Autepos\AiPayment\Providers\StripeIntent\Http\Controllers\StripeIntentWebhookController;
 use Autepos\AiPayment\Tests\TestCase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
+use Autepos\AiPayment\Providers\StripeIntent\Http\MiddleWare\StripeIntentVerifyWebhookSignature;
 
-
-
-class StripeIntentVerifyWebhookSignatureTest extends TestCase
+/**
+ * TODO: Delete file as no more in use
+ */
+class StripeIntentVerifyWebhookSignatureTest_DELETE extends TestCase
 {
     use StripeIntentTestHelpers;
 
@@ -56,28 +57,32 @@ class StripeIntentVerifyWebhookSignatureTest extends TestCase
         $this->request = new Request([], [], [], [], [], [], 'Signed Body');
     }
 
-    public function test_true_is_returned_when_secret_matches()
+    public function test_response_is_received_when_secret_matches()
     {
         
         $this->withTimestamp(time());
         $this->withSignedSignature($this->webhookEndpointSecret);
 
-        $result = (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
+        $response = (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+                return new Response('OK');
+            });
 
-        $this->assertTrue($result);
+        $this->assertEquals('OK', $response->content());
 
     }
 
-    public function test_true_is_returned_when_timestamp_is_within_tolerance_zone()
+    public function test_response_is_received_when_timestamp_is_within_tolerance_zone()
     {
         $this->withTimestamp(time() - 300);
         $this->withSignedSignature($this->webhookEndpointSecret);
 
-        $result = (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
+        $response = (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+                return new Response('OK');
+            });
 
-        $this->assertTrue($result);
+        $this->assertEquals('OK', $response->content());
     }
 
     public function test_app_aborts_when_timestamp_is_too_old()
@@ -88,9 +93,9 @@ class StripeIntentVerifyWebhookSignatureTest extends TestCase
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Timestamp outside the tolerance zone');
 
-        $result = (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
-
+        $response = (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+            });
     }
 
     public function test_app_aborts_when_timestamp_is_invalid()
@@ -101,8 +106,9 @@ class StripeIntentVerifyWebhookSignatureTest extends TestCase
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Unable to extract timestamp and signatures from header');
 
-        $result = (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
+        $response = (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+            });
     }
 
     public function test_app_aborts_when_secret_does_not_match()
@@ -113,8 +119,9 @@ class StripeIntentVerifyWebhookSignatureTest extends TestCase
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('No signatures found matching the expected signature for payload');
 
-        (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
+        (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+            });
     }
 
     public function test_app_aborts_when_no_secret_was_provided()
@@ -125,8 +132,9 @@ class StripeIntentVerifyWebhookSignatureTest extends TestCase
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('No signatures found matching the expected signature for payload');
 
-        $result = (new StripeIntentWebhookController($this->paymentManager()))
-        ->validateWebhookRequest($this->request);
+        (new StripeIntentVerifyWebhookSignature($this->paymentManager()))
+            ->handle($this->request, function ($request) {
+            });
     }
 
     public function withTimestamp($timestamp)
