@@ -1,6 +1,6 @@
 {
     "name": "autepos/ai-payment",
-    "type": "project",
+    "type": "library",
     "description": "AiPayment is a uniform payment interface for Laravel.",
     "keywords": ["payment", "laravel"],
     "license": "MIT",
