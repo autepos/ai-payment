@@ -219,7 +219,7 @@ Define payment provider class e.g for Bitcoin payment:
 ```php
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
-class BitcoinPaymentProvider implements PaymentProvider{
+class BitcoinPaymentProvider extends PaymentProvider{
     ...
 }
 ```
@@ -334,8 +334,8 @@ Instead of sharing id of models to the world, we should add a column to tables w
 This change involves adding the new column to all tables and hiding the id column in all model array serialisations (i.e. $hidden=[..., 'id']). Add a unique index($tenant_id-$uid) Following these changes the StripeIntentPaymentProvider should be updated to add as Stripe metadata the new column value rather than the model id, e.g ['metadata'=>['transaction_id'=>$transaction->$uid].
 Also when saving method for StripeIntentPaymentProvider the PaymentProviderCustomerPaymentMethod::id should not be used instead the new column should be used.
 
-### Payment method general state data
-Create a storage to create a general state for payment providers, e.g installation status 
+### Installation/uninstallation status
+Emit events during up-scripts and down-scripts so that the host-app can take note of installation status
 
 ### Renaming 'init' and 'charge' to 'create' and 'confirm' respectively:
 **CONSIDER:** *With the new names `create` and `confirm` it become a little unnatural that we have refund() and syncTransactions within the same namespace the new names. For e.g. is the confirm() for the refund() or the create(). Of course it is for create() but it is not immediately obvious. So although the new names may improve the feel of the api further restructuring may be required to get the full benefit*
