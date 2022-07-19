@@ -1,6 +1,20 @@
 # Introduction
 AiPayment is a uniform payment interface for Laravel that simplifies payment mechanisms that allow you to implement embeddable UI components that delegate the handling of sensitive  payment data to your payment provider for security purposes. You can keep customers on your application during payment transaction without handling their sensitive payment details.
 
+In the ideal process for AiPayment, payment initialisation is started on the server side which produces an output required to complete the payment process in the frontend. The server is then notified of the completion either through webhook from the provider or directly by the frontend. Since the notification from the frontend cannot be trusted, the provider is contacted by the server for official confirmation of the payment status. Stripe Intent is fully implemented as a provider to demonstrated the full all of these.
+
+The following are the standout features of AiPayment:
+- Delegate the handling of sensitive data to your provider
+- Split a payment into multiple payments
+- Accept payments using multiple providers for a single order (e.g. Offline/Cash + Stripe + etc.)
+- Refund all or only part of a transaction 
+- Save payment methods for reuse
+- Ping provider to verify your integration status
+- Dynamically change your payment provider configuration
+- Dynamically switch between live and test modes
+- Multi-tenancy support
+- Implement custom payment providers.
+
 ## Installation
 ```
 composer require autepos/ai-payment
@@ -32,7 +46,9 @@ $paymentResponse = $paymentService->provider('stripe_intent')
                                 ->config($config,$livemode)
                                 ->order($order)
                                 ->init();
-
+```
+The payment response object has the details required, in this case, to complete the payment in the frontend. So ```$paymentResponse``` can be serialised and returned to the frontend. The initialisation operation is recorded in a transaction model which can be accessed from the response object,
+```php
 $transaction=$paymentResponse->getTransaction();
 ```
 That is all. Alternatively, you can initialise part/split order payment operation:
