@@ -1,19 +1,23 @@
 # Introduction
 AiPayment is a uniform payment interface for Laravel that simplifies payment mechanisms that allow you to implement embeddable UI components that delegate the handling of sensitive  payment data to your payment provider for security purposes. You can keep customers on your application during payment transaction without handling their sensitive payment details.
 
-In the ideal process for AiPayment, payment initialisation is started on the server side which produces an output required to complete the payment process in the frontend. The server is then notified of the completion either through webhook from the provider or directly by the frontend. Since the notification from the frontend cannot be trusted, the provider is contacted by the server for official confirmation of the payment status. Stripe Intent is fully implemented as a provider to demonstrated the full all of these.
+<!-- Blog content
+It's annoying, well to me, when I visit app A and they redirect me to app B (sometimes without even a warning) just to make a payment in this day and age. I am security conscious, always looking at the browser address bar to ensure that I am on a correct webpage. I panic when it switches to some unexpected address. People warn you to be careful to avoid ending in a wrong website but then they throw you from site to site after placing your trust in them. If I go to www.bbc.co.uk I do not want to end up in some somerandom.hosted-payment.com/bbc. It is really not difficult to keep your customers on your app while they make payment without you needing to handle their sensitive data. AiPayment is designed to promote this.
+-->
 
-The following are the standout features of AiPayment:
-- Delegate the handling of sensitive data to your provider
-- Split a payment into multiple payments
-- Accept payments using multiple providers for a single order (e.g. Offline/Cash + Stripe + etc.)
+In the ideal process for AiPayment, a payment initialisation is started on the server side which produces an output required to complete the payment transaction in the frontend. The server is then notified of the completion either through a webhook from the provider or directly by the frontend. Since the notification from the frontend cannot be trusted, the provider is contacted by the server for official confirmation of the payment status. Stripe Intent is fully implemented as a provider to demonstrated all of these.
+
+The following are the standout features of payment provision in AiPayment:
+- Delegation of the handling of sensitive data to a provider
+- Splitting a payment into multiple payments
+- Payments using multiple providers for a single order (e.g. Offline/Cash + Stripe + etc.)
 - Refund all or only part of a transaction 
 - Save payment methods for reuse
-- Ping provider to verify your integration status
-- Dynamically change your payment provider configuration
+- Ping provider to verify an integration status
+- Dynamically change payment provider configurations
 - Dynamically switch between live and test modes
 - Multi-tenancy support
-- Implement custom payment providers.
+- Custom payment providers.
 
 ## Installation
 ```
@@ -93,7 +97,7 @@ A successful charge can be refunded,
 ```php
 $paymentResponse = $paymentService->provider('stripe_intent')
                                     ->config($config)
-                                    ->refund($transaction);
+                                    ->refund($cashier,$transaction);
 ```
 
 ### Sync transaction
@@ -342,6 +346,8 @@ composer test
 ```
 
 ## TODO
+## Optional phpunit test
+Stripe phpunit test should be optional. The best thing is of course to put the Stripe intent provider in a separate project. This should apply to any payment provider accept 'OfflinePaymentProvider' and its children.
 ### Add a public id to tables
 Instead of sharing id of models to the world, we should add a column to tables which stores a unique hash. The column values should be fairly random. The column names can be one of the following:
 1. pid - public id/persistent id
