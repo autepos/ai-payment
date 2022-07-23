@@ -16,6 +16,7 @@ use Autepos\AiPayment\Models\Factories\TransactionFactory;
  * Transaction information.
  * 
  * @property int $id the primary key
+ * @property string $pid the universally unique  id that can be shared with the public
  * @property string|int ${tenant-id}  the id of the owner tenant
  * @property int $parent_id the transaction the this transaction is related to, i.e for self join
  * @property string $cashier_id the id of an admin user/if any, who processed the transaction.
@@ -106,6 +107,13 @@ class Transaction extends Model
      */
     protected static function booted()
     {
+        static::creating(function ($transaction) {
+            // Add pid
+            if(!$transaction->pid){
+                $transaction->pid=PaymentService::generatePid();
+            }
+        });
+
         static::saved(function ($transaction) {
             $transaction->updateOrder();
         });

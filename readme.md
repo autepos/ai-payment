@@ -348,15 +348,7 @@ composer test
 ## TODO
 ## Optional phpunit test
 Stripe phpunit test should be optional. The best thing is of course to put the Stripe intent provider in a separate project. This should apply to any payment provider accept 'OfflinePaymentProvider' and its children.
-### Add a public id to tables
-Instead of sharing id of models to the world, we should add a column to tables which stores a unique hash. The column values should be fairly random. The column names can be one of the following:
-1. pid - public id/persistent id
-2. iid - internet id
-3. rid - resource id
-4. uid - unique
 
-This change involves adding the new column to all tables and hiding the id column in all model array serialisations (i.e. $hidden=[..., 'id']). Add a unique index($tenant_id-$uid) Following these changes the StripeIntentPaymentProvider should be updated to add as Stripe metadata the new column value rather than the model id, e.g ['metadata'=>['transaction_id'=>$transaction->$uid].
-Also when saving method for StripeIntentPaymentProvider the PaymentProviderCustomerPaymentMethod::id should not be used instead the new column should be used.
 
 
 ### Renaming 'init' and 'charge' to 'create' and 'confirm' respectively:

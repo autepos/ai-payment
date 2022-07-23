@@ -127,7 +127,8 @@ class StripeIntentPaymentProvider extends PaymentProvider
      * @inheritDoc
      * @param array $data [
      *      'payment_provider_payment_method_id'=>(string) \Stripe\PaymentMethod::id which should be used to init the payment intent.
-     *      'payment_provider_customer_payment_method_id'=>(integer) An id of a user saved payment method i.e PaymentProviderCustomerPaymentMethod model (representing a \Stripe\PaymentMethod::id) that should be used to init the intent. It will be ignored if 'payment_provider_payment_method_id' data is provided. //TODO this will be replaced with uid
+     *      'payment_provider_customer_payment_method_pid'=>(string) A pid of a user saved payment method i.e PaymentProviderCustomerPaymentMethod model (representing a \Stripe\PaymentMethod) that should be used to init the intent. It will be ignored if 'payment_provider_payment_method_id' data is provided.
+     *      'payment_provider_customer_payment_method_id'=>(integer) An id of a user saved payment method i.e PaymentProviderCustomerPaymentMethod model (representing a \Stripe\PaymentMethod) that should be used to init the intent. It will be ignored if 'payment_provider_payment_method_id' or 'payment_provider_customer_payment_method_pid' data is provided.
      * ]
      */
     public function init(int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
@@ -156,7 +157,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
             // Verify your integration in this guide by including this parameter
             'metadata' => [
                 'tenant_id'=>static::getTenant(),
-                'transaction_id' => $transaction->id,
+                'transaction_pid' => $transaction->pid,
 
                 // We store enough info here so that we can recreate the transaction
                 // from payment intent if the transaction goes missing for some reason.
@@ -194,7 +195,15 @@ class StripeIntentPaymentProvider extends PaymentProvider
                     $paymentIntent_data['payment_method'] = $paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id;
                 }
             }
+            // Check if a pid of a saved payment method is sent along
+            elseif (isset($data['payment_provider_customer_payment_method_pid'])) {
+                $paymentProviderCustomerPaymentMethod = $paymentProviderCustomer->paymentMethods()
+                    ->where('pid',$data['payment_provider_customer_payment_method_pid'])->first();
 
+                if ($paymentProviderCustomerPaymentMethod) {
+                    $paymentIntent_data['payment_method'] = $paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id;
+                }
+            }
             // Check if an id of a saved payment method is sent along
             elseif (isset($data['payment_provider_customer_payment_method_id'])) {
                 $paymentProviderCustomerPaymentMethod = $paymentProviderCustomer->paymentMethods()
@@ -214,7 +223,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 try {
                     $paymentIntent = $this->client()
                         ->paymentIntents->update($payment_intent_id, $paymentIntent_data, [
-                            //'idempotency_key'=>$transaction->id,//TODO: we may need to implement idenpotency. We are updating the intent which means it won't have the same parameters as the previous request, so we should not give it idempotency_key of previous request. So a new idenpotency key is needed each time we update.
+                            //'idempotency_key'=>$transaction->pid,//TODO: we may need to implement idenpotency. We are updating the intent which means it won't have the same parameters as the previous request, so we should not give it idempotency_key of previous request. So a new idenpotency key is needed each time we update.
                         ]);
                 } catch (\Stripe\Exception\ApiErrorException $ex) {
                     // Just swallow the error, we will create a new intent below instead
@@ -225,7 +234,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                 // Proceed to make a new intent
                 $paymentIntent = $this->client()
                     ->paymentIntents->create($paymentIntent_data, [
-                        //'idempotency_key'=>$transaction->id,// TODO: we may need to implement idenpotency
+                        //'idempotency_key'=>$transaction->pid,// TODO: we may need to implement idenpotency
                     ]);
             }
 
@@ -333,7 +342,7 @@ class StripeIntentPaymentProvider extends PaymentProvider
                     'metadata' => [
                         'tenant_id'=>static::getTenant(),
                         'orderable_id' => $transaction->orderable_id,
-                        'transaction_parent_id' => $transaction->id,
+                        'transaction_parent_pid' => $transaction->pid,
                         'cashier_id' => $cashier->getAuthIdentifier(),
                     ],
                 ]);

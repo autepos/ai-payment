@@ -54,7 +54,7 @@ trait PaymentProviderWebhook
         }
 
         //
-        $transaction = Transaction::find($paymentIntent->metadata->transaction_id);
+        $transaction = Transaction::where('pid',$paymentIntent->metadata->transaction_pid)->first();
         if (!$transaction) {
             $transaction = $this->paymentIntentToTransaction($paymentIntent);
         }

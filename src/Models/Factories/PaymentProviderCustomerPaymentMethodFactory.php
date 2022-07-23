@@ -3,6 +3,7 @@
 namespace Autepos\AiPayment\Models\Factories;
 
 
+use Autepos\AiPayment\PaymentService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 
@@ -25,6 +26,7 @@ class PaymentProviderCustomerPaymentMethodFactory extends Factory
     public function definition()
     {
         return [
+            'pid'=>PaymentService::generatePid(),
             'payment_provider' => $this->faker->word(),
         ];
     }

@@ -50,7 +50,7 @@ class CustomerResponse extends BaseResponse
 
         if ($this->paymentProviderCustomer) {
             $data['payment_provider_customer'] = [
-                'id' => $this->paymentProviderCustomer->id,
+                'pid' => $this->paymentProviderCustomer->pid,
                 'user_type' => $this->paymentProviderCustomer->user_type,
                 'user_id' => $this->paymentProviderCustomer->user_id,
                 'payment_provider' => $this->paymentProviderCustomer->payment_provider,

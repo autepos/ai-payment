@@ -6,14 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
-        "illuminate/support": ">=7.0 <10.0",
+        "illuminate/config": ">=7.0 <10.0",
+        "illuminate/contracts": ">=7.0 <10.0",
         "illuminate/database": ">=7.0 <10.0",
         "illuminate/events": ">=7.0 <10.0",
-        "illuminate/routing": ">=7.0 <10.0",
         "illuminate/log": ">=7.0 <10.0",
-        "illuminate/contracts": ">=7.0 <10.0",
-        "illuminate/config": ">=7.0 <10.0",
+        "illuminate/routing": ">=7.0 <10.0",
+        "illuminate/support": ">=7.0 <10.0",
         "moneyphp/money": "^3.2|^4.0",
+        "ramsey/uuid": "^4.2",
         "stripe/stripe-php": "^7.39|^8.0"
     },
     "require-dev": {

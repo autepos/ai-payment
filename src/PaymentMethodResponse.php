@@ -52,7 +52,7 @@ class PaymentMethodResponse extends BaseResponse
 
         if ($this->paymentProviderCustomerPaymentMethod) {
             $data['payment_provider_customer_payment_method'] = [
-                'id' => $this->paymentProviderCustomerPaymentMethod->id,
+                'pid' => $this->paymentProviderCustomerPaymentMethod->pid,
                 'payment_provider' => $this->paymentProviderCustomerPaymentMethod->payment_provider,
                 'payment_provider_payment_method_id' => $this->paymentProviderCustomerPaymentMethod->payment_provider_payment_method_id,
             ];

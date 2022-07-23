@@ -2,6 +2,8 @@
 
 namespace Autepos\AiPayment\Models;
 
+
+use Autepos\AiPayment\PaymentService;
 use Illuminate\Database\Eloquent\Model;
 use Autepos\AiPayment\Tenancy\Tenantable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +11,7 @@ use Autepos\AiPayment\Models\Factories\PaymentProviderCustomerPaymentMethodFacto
 
 /**
  * @property int $id Model key
+ * @property string $pid the universally unique id that can be shared with the public
  * @property string|int ${tenant-id}  the id of the owner tenant
  * @property string $payment_provider The payment provider tag. A persistance of the payment provider from the parent table, payment_provider_customer.
  * @property string $payment_provider_payment_method_id The id the provider uses to uniquely identify this payment method e.g for Stripe, this will be the PaymentMethod->id.
@@ -29,7 +32,6 @@ class PaymentProviderCustomerPaymentMethod extends Model
     use Tenantable;
 
     protected $hidden=[
-        'payment_provider_payment_method_id',// This removed if required
         'created_at',
         'updated_at'
     ];
@@ -40,6 +42,20 @@ class PaymentProviderCustomerPaymentMethod extends Model
         'meta'=>'array',
     ];
 
+        /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($paymentProviderCustomerPaymentMethod) {
+            // Add pid
+            if(!$paymentProviderCustomerPaymentMethod->pid){
+                $paymentProviderCustomerPaymentMethod->pid=PaymentService::generatePid();
+            }
+        });
+    }
     /**
      * Create a new factory instance for the model.
      *

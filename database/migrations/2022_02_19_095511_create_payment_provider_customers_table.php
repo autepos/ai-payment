@@ -16,7 +16,7 @@ class CreatePaymentProviderCustomersTable extends Migration
     {
         Schema::create('payment_provider_customers', function (Blueprint $table) {
             $table->id();
-
+            $table->string('pid',36)->unique();// The id that can be shared with the public
             Tenant::addSchemaColumn($table);
             //
             $table->string('payment_provider');

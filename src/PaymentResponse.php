@@ -50,7 +50,7 @@ class PaymentResponse extends BaseResponse
 
         if ($this->transaction) {
             $data['transaction'] = [
-                'id' => $this->transaction->id,
+                'pid' => $this->transaction->pid,
                 'orderable_id' => $this->transaction->orderable_id,
                 'refund' => $this->transaction->refund,
                 'success' => $this->transaction->success,

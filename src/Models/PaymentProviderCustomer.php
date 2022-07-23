@@ -2,6 +2,7 @@
 
 namespace Autepos\AiPayment\Models;
 
+use Autepos\AiPayment\PaymentService;
 use Illuminate\Database\Eloquent\Model;
 use Autepos\AiPayment\Tenancy\Tenantable;
 use Autepos\AiPayment\Contracts\CustomerData;
@@ -11,6 +12,7 @@ use Autepos\AiPayment\Models\Factories\PaymentProviderCustomerFactory;
 
 /**
  * @property int $id Model key
+ * @property string $pid the  universally unique id that can be shared with the public
  * @property string|int ${tenant-id}  the id of the owner tenant 
  * @property string $payment_provider The payment provider tag
  * @property string $payment_provider_customer_id The id the payment provider uses to identify this customer
@@ -23,7 +25,6 @@ class PaymentProviderCustomer extends Model
     use Tenantable;
 
     protected $hidden = [
-        'payment_provider_customer_id', // This can be removed if required
         'created_at',
         'updated_at',
     ];
@@ -31,6 +32,21 @@ class PaymentProviderCustomer extends Model
     protected $casts = [
         'meta' => 'array',
     ];
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($paymentProviderCustomer) {
+            // Add pid
+            if(!$paymentProviderCustomer->pid){
+                $paymentProviderCustomer->pid=PaymentService::generatePid();
+            }
+        });
+    }
 
     /**
      * Create a new factory instance for the model.
@@ -41,6 +57,8 @@ class PaymentProviderCustomer extends Model
     {
         return PaymentProviderCustomerFactory::new();
     }
+
+
 
     /**
      * Relationship with PaymentProviderCustomerPaymentMethod model

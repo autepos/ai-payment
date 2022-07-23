@@ -32,7 +32,7 @@ class StripeIntent_PaymentProviderWebhook_Test extends TestCase
             'transaction_family_id' => null, //We will set this after we got an payment intent
         ]);
         $paymentIntent = $this->createTestPayment($amount, 'gbp', [
-            'transaction_id' => $transaction->id
+            'transaction_pid' => $transaction->pid
         ]);
 
         $transaction->transaction_family_id = $paymentIntent->id;
@@ -101,7 +101,7 @@ class StripeIntent_PaymentProviderWebhook_Test extends TestCase
 
         //
         $paymentIntent = $this->createUnsuccessfulTestPayment($amount, 'gbp', [
-            'transaction_id' => $transaction->id
+            'transaction_pid' => $transaction->pid
         ]);
 
         //

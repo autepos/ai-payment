@@ -70,11 +70,15 @@ trait PaymentProviderSync
                 //
                 $transaction->display_only = true;
 
-                // Note that the reason the following may be null is that the refund may
+                // Note that the reason the followings may be null is that the refund may
                 // have been created outside of our API calls.
                 $transaction->orderable_id = $refund->metadata->orderable_id ?? null;
-                $transaction->parent_id = $refund->metadata->transaction_parent_id ?? null;
                 $transaction->cashier_id = $refund->metadata->cashier_id ?? null;
+                $transaction->parent_id=null;
+                if($refund->metadata->transaction_parent_pid){
+                    $parentTransaction=Transaction::where('pid',$refund->metadata->transaction_parent_pid)->first();
+                    $transaction->parent_id = $parentTransaction?$parentTransaction->id:null;
+                }
 
                 $transaction->livemode = $paymentIntent->livemode;
 

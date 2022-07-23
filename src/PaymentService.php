@@ -5,6 +5,7 @@ namespace Autepos\AiPayment;
 use Money\Money;
 use Money\Currency;
 use NumberFormatter;
+use Ramsey\Uuid\Uuid;
 use Money\Currencies\ISOCurrencies;
 use Money\Formatter\IntlMoneyFormatter;
 use Autepos\AiPayment\Models\Transaction;
@@ -13,8 +14,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
-use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use \Autepos\AiPayment\Exceptions\LivemodeMismatchException;
+use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use \Autepos\AiPayment\Exceptions\TransactionPaymentProviderMismatchException;
 
 /**
@@ -416,5 +417,12 @@ class PaymentService extends PaymentProvider
         $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
 
         return $moneyFormatter->format($money);
+    }
+
+    /**
+     * Generate the public id for an entity.
+     */
+    public static function generatePid():string{
+        return Uuid::uuid4()->toString();
     }
 }
