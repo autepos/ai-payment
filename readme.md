@@ -290,11 +290,12 @@ This is a really simple implementation of payment provider to be used to give a 
 $paymentProvider=$paymentService->provider('pay_later');
 ```
 ### Stripe intent
-This provider Stripe intent payment services.
+This provides Stripe intent payment services.
 ```php
 // Retrieve instance with payment service
 $paymentProvider=$paymentService->provider('stripe_intent');
 ```
+For installation of this payment provider see [Stripe intent](https://github.com/autepos/stripe-intent).
 
 ## Tenancy
 Tenancy is supported but it is disabled by default. You can enable tenancy by setting a 'ai-payment.tenancy' config thus:
@@ -345,11 +346,10 @@ or
 composer test
 ```
 
+<!--
 ## TODO
-## Optional phpunit test
-Stripe phpunit test should be optional. The best thing is of course to put the Stripe intent provider in a separate project. This should apply to any payment provider accept 'OfflinePaymentProvider' and its children.
-
-
+## Visit todos
+Visit all in-code todos.
 
 ### Renaming 'init' and 'charge' to 'create' and 'confirm' respectively:
 **CONSIDER:** *With the new names `create` and `confirm` it become a little unnatural that we have refund() and syncTransactions within the same namespace the new names. For e.g. is the confirm() for the refund() or the create(). Of course it is for create() but it is not immediately obvious. So although the new names may improve the feel of the api further restructuring may be required to get the full benefit*
@@ -361,3 +361,4 @@ Stripe phpunit test should be optional. The best thing is of course to put the S
 6. Update app\Http\Controllers\Json\Checkout\Payment\Payment.php to change references of 'init' and 'charge' to 'create' and 'confirm' respectively.
 7. In routes/web.php, update the api routes under "Checkout - Payment - payment"  to change references of 'init' and 'charge' to 'create' and 'confirm' respectively.
 8. Update payment.md to change references to 'init' and 'charge' to 'create' and 'confirm' respectively.
+-->
