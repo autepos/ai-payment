@@ -26,6 +26,9 @@
         "orchestra/testbench": "^6.24",
         "phpunit/phpunit": "^9.3"
     },
+    "suggest": {
+        "autepos/stripe-intent-payment-provider": "For the default payment provider for Stripe intent"
+    },
     "config": {
         "sort-packages": true
     },

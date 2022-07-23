@@ -7,7 +7,7 @@ use Autepos\AiPayment\Providers\CashPaymentProvider;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
 use Autepos\AiPayment\Providers\OfflinePaymentProvider;
 use Autepos\AiPayment\Providers\PayLaterPaymentProvider;
-use Autepos\AiPayment\Providers\StripeIntent\StripeIntentPaymentProvider;
+
 
 
 class AiPaymentServiceProvider extends ServiceProvider
@@ -56,9 +56,6 @@ class AiPaymentServiceProvider extends ServiceProvider
             return $app->make(PayLaterPaymentProvider::class);
         });
 
-        $paymentManager->extend(StripeIntentPaymentProvider::PROVIDER, function ($app) {
-            return $app->make(StripeIntentPaymentProvider::class);
-        });
 
 
 
@@ -83,9 +80,6 @@ class AiPaymentServiceProvider extends ServiceProvider
 
 
 
-        /**
-         * Load routes for StripeIntent
-         */
-        $this->loadRoutesFrom(__DIR__ . '/Providers/StripeIntent/routes/routes.php');
+
     }
 }
