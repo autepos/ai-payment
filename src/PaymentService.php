@@ -5,7 +5,7 @@ namespace Autepos\AiPayment;
 use Money\Money;
 use Money\Currency;
 use NumberFormatter;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 use Money\Currencies\ISOCurrencies;
 use Money\Formatter\IntlMoneyFormatter;
 use Autepos\AiPayment\Models\Transaction;
@@ -33,7 +33,7 @@ class PaymentService extends PaymentProvider
      *
      * @var string
      */
-    const VERSION = '1.0.0-beta4';
+    const VERSION = '1.0.0-beta5';
     
     /**
      * Provider
@@ -423,6 +423,6 @@ class PaymentService extends PaymentProvider
      * Generate the public id for an entity.
      */
     public static function generatePid():string{
-        return Uuid::uuid4()->toString();
+        return (string) Str::uuid();
     }
 }
