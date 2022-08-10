@@ -32,7 +32,7 @@ abstract class ProviderCustomer
      */
     public function has(CustomerData $customerData): bool
     {
-        return !!$this . get($customerData);
+        return !!$this->get($customerData);
     }
 
     /**

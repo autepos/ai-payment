@@ -48,6 +48,14 @@ class OfflinePaymentProvider extends PaymentProvider
         return $response;
     }
 
+    /**
+     * @inheritDoc
+     * @param array $data Arbitrary data. 
+     * [
+     *  'notes'=>(string) a note to be stored in transaction
+     * ]
+     * 
+     */
     public function cashierInit(Authenticatable $cashier, int $amount = null, array $data = [], Transaction $transaction = null): PaymentResponse
     {
 
@@ -58,7 +66,8 @@ class OfflinePaymentProvider extends PaymentProvider
 
         $trans_id = optional($transaction)->transaction_family_id;
         $transaction = $this->getInitTransaction($amount, $transaction);
-
+        
+        $transaction->notes=isset($data['notes'])?$data['notes']:null;//@todo no phpunit test for this
 
         $trans_id = $trans_id ?? (string)Str::uuid();
 
