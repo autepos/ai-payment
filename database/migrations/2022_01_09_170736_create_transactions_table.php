@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Autepos\AiPayment\Models\Transaction;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTransactionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +16,7 @@ class CreateTransactionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('aip_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('pid',36)->unique();// The id that can be shared with the public
             Tenant::addSchemaColumn($table);
@@ -129,6 +129,6 @@ class CreateTransactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('aip_transactions');
     }
-}
+};

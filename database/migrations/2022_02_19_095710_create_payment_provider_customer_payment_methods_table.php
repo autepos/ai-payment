@@ -5,7 +5,7 @@ use Autepos\AiPayment\Tenancy\Tenant;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePaymentProviderCustomerPaymentMethodsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -62,4 +62,4 @@ class CreatePaymentProviderCustomerPaymentMethodsTable extends Migration
     {
         Schema::dropIfExists('payment_provider_customer_payment_methods');
     }
-}
+};

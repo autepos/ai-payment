@@ -87,6 +87,7 @@ class Transaction extends Model
      */
     public const LOCAL_STATUS_COMPLETE = 'complete';
 
+    protected $table='aip_transactions';
 
     protected $casts = [
         'escrow_expires_at' => 'datetime',
