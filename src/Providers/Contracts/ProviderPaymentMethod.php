@@ -46,6 +46,14 @@ abstract class ProviderPaymentMethod
         return $this;
     }
 
+        /**
+     * Get the customer data
+     */
+    public function getCustomerData(): ?CustomerData
+    {
+        return $this->customerData;
+    }
+
     public abstract function init(array $data): PaymentMethodResponse;
 
     /**

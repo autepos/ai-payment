@@ -109,14 +109,7 @@ class OfflinePaymentProvider extends PaymentProvider
         }
 
 
-        //
-        if (!$this->authoriseProviderTransaction($transaction)) { // TODO: Delete this block and the related test as this has already been taken care of by the PaymentService
-            $paymentResponse->success = false;
-            $paymentResponse->errors = $this->hasSameLiveModeAsTransaction($transaction)
-                ? ['Unauthorised payment transaction with provider']
-                : ['Livemode mismatch'];
-            return $paymentResponse;
-        }
+        
 
         $transaction->amount = $transaction->orderable_amount; // Set the actual paid amount 
         $transaction->amount_refunded = 0;
@@ -139,66 +132,49 @@ class OfflinePaymentProvider extends PaymentProvider
 
         $response = new PaymentResponse(PaymentResponse::newType('refund'));
 
+        DB::beginTransaction();
+        try {
+
+            $trans_id = (string)Str::uuid();
+            $refundTransaction = $this->newTransaction(0);
+
+            $refundTransaction->orderable_id = $transaction->orderable_id;
+
+            // Set the amounts according to refund rules
+            $refundTransaction->amount = 0;
+            $refundTransaction->amount_refunded = -abs($amount);
+            $refundTransaction->refund = true;
+            $refundTransaction->display_only = true; // This prevent doubly applying the refund record since we will also record it in the transaction used to initiate the refund.
+            $refundTransaction->parent_id = $transaction->id;
+            //
+            $refundTransaction->cashier_id = $cashier->getAuthIdentifier();
+            $refundTransaction->transaction_family = Transaction::TRANSACTION_FAMILY_REFUND;
+            $refundTransaction->transaction_family_id = $trans_id;
+
+            $refundTransaction->success = true;
+            $refundTransaction->status = 'success';
+            $refundTransaction->local_status = Transaction::LOCAL_STATUS_COMPLETE;
+            $refundTransaction->description = $description;
 
 
+            // Update the transaction used to make the refund
+            $transaction->amount_refunded = - (abs($transaction->amount_refunded) + abs($refundTransaction->amount_refunded));
 
-        //
-        if (!$this->authoriseProviderTransaction($transaction)) { //TODO: This should already been taken care of by PaymentService
+            //
+            $refundTransaction->save();
+            $transaction->save();
+
+            //
+            $response->success = true;
+            $response->transaction($refundTransaction);
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollBack();
             $response->success = false;
-
-            $response->errors = $this->hasSameLiveModeAsTransaction($transaction)
-                ? ['Unauthorised payment transaction with provider']
-                : ['Livemode mismatch'];
-            return $response;
+            $response->errors = [$ex->getMessage()];
+            $response->transaction(null);
         }
-
-        if ($this->validateRefund($transaction, $amount)) { //TODO: Note that validating the refund should already been taken care of by PaymentService
-            DB::beginTransaction();
-            try {
-
-                $trans_id = (string)Str::uuid();
-                $refundTransaction = $this->newTransaction(0);
-
-                $refundTransaction->orderable_id = $transaction->orderable_id;
-
-                // Set the amounts according to refund rules
-                $refundTransaction->amount = 0;
-                $refundTransaction->amount_refunded = -abs($amount);
-                $refundTransaction->refund = true;
-                $refundTransaction->display_only = true; // This prevent doubly applying the refund record since we will also record it in the transaction used to initiate the refund.
-                $refundTransaction->parent_id = $transaction->id;
-                //
-                $refundTransaction->cashier_id = $cashier->getAuthIdentifier();
-                $refundTransaction->transaction_family = Transaction::TRANSACTION_FAMILY_REFUND;
-                $refundTransaction->transaction_family_id = $trans_id;
-
-                $refundTransaction->success = true;
-                $refundTransaction->status = 'success';
-                $refundTransaction->local_status = Transaction::LOCAL_STATUS_COMPLETE;
-                $refundTransaction->description = $description;
-
-
-                // Update the transaction used to make the refund
-                $transaction->amount_refunded = - (abs($transaction->amount_refunded) + abs($refundTransaction->amount_refunded));
-
-                //
-                $refundTransaction->save();
-                $transaction->save();
-
-                //
-                $response->success = true;
-                $response->transaction($refundTransaction);
-                DB::commit();
-            } catch (Exception $ex) {
-                DB::rollBack();
-                $response->success = false;
-                $response->errors = [$ex->getMessage()];
-                $response->transaction(null);
-            }
-        } else {
-            $response->message = 'Invalid refund';
-            $response->errors = ['Refund was invalid'];
-        }
+        
 
         return $response;
     }
