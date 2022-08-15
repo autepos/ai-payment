@@ -1,4 +1,5 @@
 <?php
+
 namespace Autepos\AiPayment\Tests\ContractTests;
 
 use Mockery;
@@ -29,201 +30,204 @@ trait PaymentProviderContractTest
 {
     use ContractTestBase;
 
-   protected $subjectContract=PaymentProvider::class;
+    protected $subjectContract = PaymentProvider::class;
 
 
-   public function test_can_up(){
-       $response = $this->subjectInstanceOrFail($this->subjectContract)->up();
+    public function test_can_up()
+    {
+        $response = $this->subjectInstanceOrFail($this->subjectContract)->up();
 
-       $this->assertInstanceOf(SimpleResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
-       $this->assertTrue($response->success);
-   }
+        $this->assertInstanceOf(SimpleResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
+        $this->assertTrue($response->success);
+    }
 
-   public function test_can_down(){
-       $response = $this->subjectInstanceOrFail($this->subjectContract)->down();
+    public function test_can_down()
+    {
+        $response = $this->subjectInstanceOrFail($this->subjectContract)->down();
 
-       $this->assertInstanceOf(SimpleResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
-       $this->assertTrue($response->success);
-   }
+        $this->assertInstanceOf(SimpleResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
+        $this->assertTrue($response->success);
+    }
 
-   public function test_can_ping(){
-       $response = $this->subjectInstanceOrFail($this->subjectContract)->ping();
+    public function test_can_ping()
+    {
+        $response = $this->subjectInstanceOrFail($this->subjectContract)->ping();
 
-       $this->assertInstanceOf(SimpleResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_PING, $response->getType()->getName());
-       $this->assertTrue($response->success);
-   }
+        $this->assertInstanceOf(SimpleResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_PING, $response->getType()->getName());
+        $this->assertTrue($response->success);
+    }
 
 
-   public function test_can_cashier_init_payment():Transaction
-   {
-       $amount = 1000;
+    public function test_can_cashier_init_payment(): Transaction
+    {
+        $amount = 1000;
 
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldReceive('getAmount')
-       ->atLeast()
-       ->once()
-           ->andReturn($amount);
-
-       $mockOrder->shouldReceive('getKey')
-       ->atLeast()
-       ->once()
-           ->andReturn(1);
-
-       $mockOrder->shouldReceive('getCurrency')
-       ->atLeast()
-       ->once()
-           ->andReturn('gbp');
-       
-       $mockOrder->shouldReceive('getCustomer')
+        /**
+         * @var \Autepos\AiPayment\Providers\Contracts\Orderable
+         */
+        $mockOrder = Mockery::mock(Orderable::class);
+        $mockOrder->shouldReceive('getAmount')
             ->atLeast()
             ->once()
-           ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+            ->andReturn($amount);
+
+        $mockOrder->shouldReceive('getKey')
+            ->atLeast()
+            ->once()
+            ->andReturn(1);
+
+        $mockOrder->shouldReceive('getCurrency')
+            ->atLeast()
+            ->once()
+            ->andReturn('gbp');
+
+        $mockOrder->shouldReceive('getCustomer')
+            ->atLeast()
+            ->once()
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
         $mockOrder->shouldReceive('getDescription')
-           //->once() // Uncomment out to make calling getDescription mandatory.
-           ->andReturn('test_can_cashier_init_payment');
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldReceive('getAuthIdentifier')
+            //->once() // Uncomment out to make calling getDescription mandatory.
+            ->andReturn('test_can_cashier_init_payment');
+        /**
+         * @var \Illuminate\Contracts\Auth\Authenticatable
+         */
+        $mockCashier = Mockery::mock(Authenticatable::class);
+        $mockCashier->shouldReceive('getAuthIdentifier')
             ->atLeast()
             ->once()
-           ->andReturn(1);
+            ->andReturn(1);
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->cashierInit($mockCashier,null);
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->order($mockOrder)
+            ->cashierInit($mockCashier, null);
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
-       $this->assertTrue($response->success);
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
+        $this->assertTrue($response->success);
 
-       $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-       $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
-       $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
-       $this->assertEquals(1, $response->getTransaction()->orderable_id);
-       $this->assertEquals(1, $response->getTransaction()->cashier_id);
-       $this->assertTrue($response->getTransaction()->exists,'Failed asserting that transaction not stored');
+        $this->assertInstanceOf(Transaction::class, $response->getTransaction());
+        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
+        $this->assertEquals(1, $response->getTransaction()->orderable_id);
+        $this->assertEquals(1, $response->getTransaction()->cashier_id);
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
 
-       return $response->getTransaction();
-   }
+        return $response->getTransaction();
+    }
 
 
-   
-   public function test_can_cashier_init_split_payment()
-   {
-       $amount = 1000;
 
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldReceive('getKey')
-           ->atLeast()
-           ->once()
-           ->andReturn(1);
-       
-       $mockOrder->shouldReceive('getCurrency')
+    public function test_can_cashier_init_split_payment()
+    {
+        $amount = 1000;
+
+        /**
+         * @var \Autepos\AiPayment\Providers\Contracts\Orderable
+         */
+        $mockOrder = Mockery::mock(Orderable::class);
+        $mockOrder->shouldReceive('getKey')
             ->atLeast()
             ->once()
-           ->andReturn('gbp');
+            ->andReturn(1);
 
-       $mockOrder->shouldReceive('getCustomer')
-       ->atLeast()
-           ->once()
-           ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+        $mockOrder->shouldReceive('getCurrency')
+            ->atLeast()
+            ->once()
+            ->andReturn('gbp');
+
+        $mockOrder->shouldReceive('getCustomer')
+            ->atLeast()
+            ->once()
+            ->andReturn(new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']));
 
         $mockOrder->shouldReceive('getDescription')
             //->once() // Uncomment out to make calling getDescription mandatory.
             ->andReturn('test_can_cashier_init_payment');
 
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldReceive('getAuthIdentifier')
+        /**
+         * @var \Illuminate\Contracts\Auth\Authenticatable
+         */
+        $mockCashier = Mockery::mock(Authenticatable::class);
+        $mockCashier->shouldReceive('getAuthIdentifier')
             ->atLeast()
             ->once()
-           ->andReturn(1);
+            ->andReturn(1);
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->cashierInit($mockCashier,$amount);
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->order($mockOrder)
+            ->cashierInit($mockCashier, $amount);
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
-       $this->assertTrue($response->success);
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
+        $this->assertTrue($response->success);
 
-       $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-       $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
-       $this->assertEquals($amount,$response->getTransaction()->orderable_amount);
-       $this->assertTrue($response->getTransaction()->exists,'Failed asserting that transaction not stored');
-   }
+        $this->assertInstanceOf(Transaction::class, $response->getTransaction());
+        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+    }
 
-   public function test_can_customer_init_payment(): Transaction
-   {
-
-
-       $amount = 1000;
-
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldReceive('getAmount')
-       ->atLeast()
-           ->once()
-           ->andReturn($amount);
-
-       $mockOrder->shouldReceive('getKey')
-       ->atLeast()
-           ->once()
-           ->andReturn(1);
-
-       $mockOrder->shouldReceive('getCurrency')
-       ->atLeast()
-           ->once()
-           ->andReturn('gbp');
-
-       $mockOrder->shouldReceive('getCustomer')
-           ->atLeast()
-           ->once()
-           ->andReturn(new CustomerData(['user_type' => 'customer', 'user_id' => '1', 'email' => 'test@test.com']));
-
-       $mockOrder->shouldReceive('getDescription')
-       ->atLeast()
-           ->once()
-           ->andReturn('test_can_customer_init_payment');
+    public function test_can_customer_init_payment(): Transaction
+    {
 
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->init(null);
+        $amount = 1000;
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
-       $this->assertTrue($response->success);
+        /**
+         * @var \Autepos\AiPayment\Providers\Contracts\Orderable
+         */
+        $mockOrder = Mockery::mock(Orderable::class);
+        $mockOrder->shouldReceive('getAmount')
+            ->atLeast()
+            ->once()
+            ->andReturn($amount);
 
-       $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-       $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
-       $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
-       $this->assertEquals('gbp', $response->getTransaction()->currency);
-       $this->assertEquals(1, $response->getTransaction()->orderable_id);
-       $this->assertNull($response->getTransaction()->cashier_id);
-       $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+        $mockOrder->shouldReceive('getKey')
+            ->atLeast()
+            ->once()
+            ->andReturn(1);
 
-       return $response->getTransaction();
-   }
+        $mockOrder->shouldReceive('getCurrency')
+            ->atLeast()
+            ->once()
+            ->andReturn('gbp');
+
+        $mockOrder->shouldReceive('getCustomer')
+            ->atLeast()
+            ->once()
+            ->andReturn(new CustomerData(['user_type' => 'customer', 'user_id' => '1', 'email' => 'test@test.com']));
+
+        $mockOrder->shouldReceive('getDescription')
+            ->atLeast()
+            ->once()
+            ->andReturn('test_can_customer_init_payment');
 
 
-   public function test_can_customer_init_split_payment()
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->order($mockOrder)
+            ->init(null);
+
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_INIT, $response->getType()->getName());
+        $this->assertTrue($response->success);
+
+        $this->assertInstanceOf(Transaction::class, $response->getTransaction());
+        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
+        $this->assertEquals('gbp', $response->getTransaction()->currency);
+        $this->assertEquals(1, $response->getTransaction()->orderable_id);
+        $this->assertNull($response->getTransaction()->cashier_id);
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+
+        return $response->getTransaction();
+    }
+
+
+    public function test_can_customer_init_split_payment()
     {
 
         $amount = 1000;
@@ -238,17 +242,17 @@ trait PaymentProviderContractTest
             ->andReturn(1);
 
         $mockOrder->shouldReceive('getCurrency')
-        ->atLeast()
+            ->atLeast()
             ->once()
             ->andReturn('gbp');
 
         $mockOrder->shouldReceive('getCustomer')
-        ->atLeast()
+            ->atLeast()
             ->once()
             ->andReturn(new CustomerData(['user_type' => 'customer', 'user_id' => null, 'email' => 'test@test.com']));
 
         $mockOrder->shouldReceive('getDescription')
-        ->atLeast()
+            ->atLeast()
             ->once()
             ->andReturn('test_can_cashier_init_payment');
 
@@ -273,40 +277,39 @@ trait PaymentProviderContractTest
      * @depends test_can_cashier_init_payment
      * @return void
      */
-   public function test_can_cashier_charge_payment(Transaction $transaction)
-   {
-       // Since this is a new test the database would have been refreshed 
-       // so we need to re-add this transaction to db.
-       $transaction = Transaction::factory()->create($transaction->attributesToArray());
-       
+    public function test_can_cashier_charge_payment(Transaction $transaction)
+    {
+        // Since this is a new test the database would have been refreshed 
+        // so we need to re-add this transaction to db.
+        $transaction = Transaction::factory()->create($transaction->attributesToArray());
 
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldReceive('getAuthIdentifier')
-       ->atLeast()
-           ->once() // 
-           ->andReturn(1);
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           //->order($mockOrder)
-           ->cashierCharge($mockCashier,$transaction);
+        /**
+         * @var \Illuminate\Contracts\Auth\Authenticatable
+         */
+        $mockCashier = Mockery::mock(Authenticatable::class);
+        $mockCashier->shouldReceive('getAuthIdentifier')
+            ->atLeast()
+            ->once() // 
+            ->andReturn(1);
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_CHARGE, $response->getType()->getName());
-       $this->assertTrue($response->success);
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->cashierCharge($mockCashier, $transaction);
 
-       
-       $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-       $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_CHARGE, $response->getType()->getName());
+        $this->assertTrue($response->success);
+
+
+        $this->assertInstanceOf(Transaction::class, $response->getTransaction());
+        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->amount);
         $this->assertEquals($transaction->orderable_id, $response->getTransaction()->orderable_id);
-       $this->assertEquals(1, $response->getTransaction()->cashier_id);
-       
-       $this->assertDatabaseHas($response->getTransaction(), ['id' => $response->getTransaction()->id]);
-   }
+        $this->assertEquals(1, $response->getTransaction()->cashier_id);
+
+        $this->assertDatabaseHas($response->getTransaction(), ['id' => $response->getTransaction()->id]);
+    }
 
     /**
      * @depends test_can_customer_init_payment
@@ -337,182 +340,113 @@ trait PaymentProviderContractTest
 
         return $transaction;
     }
-   
 
 
-   public function test_cashier_cannot_refund_more_than_transaction_amount()
-   {
-       $amount = 1000;
-       $too_much_refund_amount = $amount + 1;
-
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-
-       $parentTransaction = Transaction::factory()->create([
-           'orderable_id' => 1,
-           'payment_provider' => $this->provider,
-           'amount' => $amount,
-       ]);
-
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldNotReceive('getAuthIdentifier');
 
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->refund( $mockCashier,$parentTransaction, $too_much_refund_amount, 'Overpayment');
+    public function test_can_cashier_refund_payment()
+    {
+        $amount = 1000;
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
-       $this->assertFalse($response->success);
-   }
+        $parentTransaction = Transaction::factory()->create([
+            'orderable_id' => 1,
+            'payment_provider' => $this->provider,
+            'amount' => $amount,
+        ]);
 
-   public function test_can_cashier_refund_payment()
-   {
-       $amount = 1000;
+        /**
+         * @var \Illuminate\Contracts\Auth\Authenticatable
+         */
+        $mockCashier = Mockery::mock(Authenticatable::class);
+        $mockCashier->shouldReceive('getAuthIdentifier')
+            ->atLeast()
+            ->once() // 
+            ->andReturn(1);
 
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldNotReceive('getAmount');
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->refund($mockCashier, $parentTransaction, $amount, 'Refund');
 
-       $mockOrder->shouldReceive('getKey')
-           //->once()
-           ->andReturn(1);
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
+        $this->assertTrue($response->success);
 
-       $mockOrder->shouldReceive('getCurrency')
-           //->once()
-           ->andReturn('gbp');
+        //
+        $this->assertEquals($amount, $parentTransaction->amount);
+        $this->assertEquals(-$amount, $parentTransaction->amount_refunded);
 
-       $mockOrder->shouldReceive('getCustomer')
-           //->once()
-           ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
-       $parentTransaction = Transaction::factory()->create([
-           'orderable_id' => 1,
-           'payment_provider' => $this->provider,
-           'amount' => $amount,
-       ]);
+        //
+        $refundTransaction = $response->getTransaction();
+        $this->assertInstanceOf(Transaction::class, $refundTransaction);
+        $this->assertEquals($this->provider, $refundTransaction->payment_provider);
+        $this->assertTrue($refundTransaction->refund);
+        $this->assertEquals(0, $refundTransaction->amount);
+        $this->assertEquals(-$amount, $refundTransaction->amount_refunded);
+        $this->assertEquals('Refund', $refundTransaction->description);
+        $this->assertEquals(1, $refundTransaction->orderable_id);
+        $this->assertEquals(1, $refundTransaction->cashier_id);
+        $this->assertDatabaseHas($refundTransaction, ['id' => $refundTransaction->id]);
 
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldReceive('getAuthIdentifier')
-       ->atLeast()
-           ->once() // 
-           ->andReturn(1);
+        $this->assertEquals($parentTransaction->id, $refundTransaction->parent_id);
+    }
 
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->refund($mockCashier,$parentTransaction, $amount, 'Refund');
+    public function test_can_cashier_refund_part_of_payment()
+    {
+        $amount = 1000;
+        $part_refund_amount = 500;
 
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
-       $this->assertTrue($response->success);
+        $parentTransaction = Transaction::factory()->create([
+            'orderable_id' => 1,
+            'payment_provider' => $this->provider,
+            'amount' => $amount,
+        ]);
 
-       //
-       $this->assertEquals($amount, $parentTransaction->amount);
-       $this->assertEquals(-$amount, $parentTransaction->amount_refunded);
-       
+        /**
+         * @var \Illuminate\Contracts\Auth\Authenticatable
+         */
+        $mockCashier = Mockery::mock(Authenticatable::class);
+        $mockCashier->shouldReceive('getAuthIdentifier')
+            ->atLeast()
+            ->once()
+            ->andReturn(1);
 
-       //
-       $refundTransaction = $response->getTransaction();
-       $this->assertInstanceOf(Transaction::class, $refundTransaction);
-       $this->assertEquals($this->provider, $refundTransaction->payment_provider);
-       $this->assertTrue($refundTransaction->refund);
-       $this->assertEquals(0, $refundTransaction->amount);
-       $this->assertEquals(-$amount, $refundTransaction->amount_refunded);
-       $this->assertEquals('Refund', $refundTransaction->description);
-       $this->assertEquals(1, $refundTransaction->orderable_id);
-       $this->assertEquals(1, $refundTransaction->cashier_id);
-       $this->assertDatabaseHas($refundTransaction, ['id' => $refundTransaction->id]);
+        $response = $this->subjectInstanceOrFail($this->subjectContract)
+            ->refund($mockCashier, $parentTransaction, $part_refund_amount, 'Overpayment');
 
-       $this->assertEquals($parentTransaction->id, $refundTransaction->parent_id);
-   }
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
+        $this->assertTrue($response->success);
 
-   public function test_can_cashier_refund_part_of_payment()
-   {
-       $amount = 1000;
-       $part_refund_amount = 500;
+        //
+        $this->assertEquals($amount, $parentTransaction->amount);
+        $this->assertEquals(-$part_refund_amount, $parentTransaction->amount_refunded);
 
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldNotReceive('getAmount');
+        //
+        $refundTransaction = $response->getTransaction();
+        $this->assertInstanceOf(Transaction::class, $refundTransaction);
+        $this->assertEquals($this->provider, $refundTransaction->payment_provider);
+        $this->assertTrue($refundTransaction->refund);
+        $this->assertEquals(0, $refundTransaction->amount);
+        $this->assertEquals(-$part_refund_amount, $refundTransaction->amount_refunded);
+        $this->assertEquals('Overpayment', $refundTransaction->description);
+        $this->assertEquals(1, $refundTransaction->orderable_id);
+        $this->assertEquals(1, $refundTransaction->cashier_id);
+        $this->assertDatabaseHas($refundTransaction, ['id' => $refundTransaction->id]);
 
-       $mockOrder->shouldReceive('getKey')
-           //->once()
-           ->andReturn(1);
+        $this->assertEquals($parentTransaction->id, $refundTransaction->parent_id);
+    }
 
-       $mockOrder->shouldReceive('getCurrency')
-           //->once()
-           ->andReturn('gbp');
 
-       $mockOrder->shouldReceive('getCustomer')
-           //->once()
-           ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+    public function test_can_sync_transaction()
+    {
 
-       $parentTransaction = Transaction::factory()->create([
-           'orderable_id' => 1,
-           'payment_provider' => $this->provider,
-           'amount' => $amount,
-       ]);
+        $paymentProvider = $this->subjectInstanceOrFail($this->subjectContract);
+        $transaction = Transaction::factory()->make([
+            'payment_provider' => $this->provider,
+        ]);
+        $response = $paymentProvider->syncTransaction($transaction);
 
-       /**
-        * @var \Illuminate\Contracts\Auth\Authenticatable
-        */
-       $mockCashier = Mockery::mock(Authenticatable::class);
-       $mockCashier->shouldReceive('getAuthIdentifier')
-       ->atLeast()
-           ->once()
-           ->andReturn(1);
-
-       $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->refund( $mockCashier,$parentTransaction, $part_refund_amount, 'Overpayment');
-
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
-       $this->assertTrue($response->success);
-
-       //
-       $this->assertEquals($amount, $parentTransaction->amount);
-       $this->assertEquals(-$part_refund_amount, $parentTransaction->amount_refunded);
-
-       //
-       $refundTransaction = $response->getTransaction();
-       $this->assertInstanceOf(Transaction::class, $refundTransaction);
-       $this->assertEquals($this->provider, $refundTransaction->payment_provider);
-       $this->assertTrue($refundTransaction->refund);
-       $this->assertEquals(0, $refundTransaction->amount);
-       $this->assertEquals(-$part_refund_amount, $refundTransaction->amount_refunded);
-       $this->assertEquals('Overpayment', $refundTransaction->description);
-       $this->assertEquals(1, $refundTransaction->orderable_id);
-       $this->assertEquals(1, $refundTransaction->cashier_id);
-       $this->assertDatabaseHas($refundTransaction, ['id' => $refundTransaction->id]);
-       
-       $this->assertEquals($parentTransaction->id, $refundTransaction->parent_id);
-   }
-
-   
-   public function test_can_sync_transaction()
-   {
-
-       $paymentProvider = $this->subjectInstanceOrFail($this->subjectContract);
-       $transaction = Transaction::factory()->make([
-           'payment_provider' => $this->provider,
-       ]);
-       $response = $paymentProvider->syncTransaction($transaction);
-
-       $this->assertInstanceOf(PaymentResponse::class, $response);
-       $this->assertEquals($response->getType()->getName(), ResponseType::TYPE_RETRIEVE);
-   }
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals($response->getType()->getName(), ResponseType::TYPE_RETRIEVE);
+    }
 }

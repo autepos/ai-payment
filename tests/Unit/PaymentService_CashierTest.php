@@ -428,6 +428,7 @@ class PaymentService_CashierTest extends TestCase
 
         //
         $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertTrue($response->success);
     }
 
     /**
@@ -481,7 +482,45 @@ class PaymentService_CashierTest extends TestCase
         $this->assertInstanceOf(PaymentResponse::class, $response);
     }
 
+    public function test_cashier_cannot_refund_more_than_transaction_amount()
+    {
+        $amount = 1000; 
+        $too_much_refund_amount=$amount+1;
 
+        $provider = 'provider_yi';
+ 
+        $parentTransaction = Transaction::factory()->create([
+            'orderable_id' => 1,
+            'payment_provider' => $provider,
+            'amount' => $amount,
+        ]);
+
+
+        //
+        $mockAuthenticatableContract = Mockery::mock(Authenticatable::class);
+
+        // Provider
+        $mockAbstractPaymentProvider = Mockery::mock(PaymentProvider::class)->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+        $mockAbstractPaymentProvider->shouldReceive('authoriseProviderTransaction')
+            ->once()
+            ->andReturn(true);
+        
+ 
+        // Payment service
+        $partialMockPaymentService = Mockery::mock(PaymentService::class)->makePartial();
+        $partialMockPaymentService->shouldReceive('providerInstance')
+            ->once()
+            ->andReturn($mockAbstractPaymentProvider);
+ 
+        $response = $partialMockPaymentService->provider($provider)
+            ->refund( $mockAuthenticatableContract,$parentTransaction, $too_much_refund_amount, 'Overpayment');
+ 
+        $this->assertInstanceOf(PaymentResponse::class, $response);
+        $this->assertEquals(ResponseType::TYPE_REFUND, $response->getType()->getName());
+        $this->assertFalse($response->success);
+    }
+ 
 
     public function test_cashier_cannot_refund_if_provider_transaction_is_not_authorised()
     {
