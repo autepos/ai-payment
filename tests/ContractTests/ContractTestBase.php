@@ -18,6 +18,6 @@ trait ContractTestBase{
                 return $instance;
             }
         }
-        throw new \Exception('subjectInstance() is missing or is returning a wrong value. Tips: Override the getInstance() method in your test. You should then return an instance of '. $subjectContract .' under test from the subjectInstance()');
+        throw new \Exception('subjectInstance() is missing or is returning a wrong value. Tips: Add subjectInstance() method in your test. You should then return an instance of '. $subjectContract .' under test from the subjectInstance()');
     }
 }

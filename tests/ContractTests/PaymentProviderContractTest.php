@@ -81,6 +81,9 @@ trait PaymentProviderContractTest
            ->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
+        $mockOrder->shouldReceive('getDescription')
+           //->once() // Uncomment out to make calling getDescription mandatory.
+           ->andReturn('test_can_cashier_init_payment');
        /**
         * @var \Illuminate\Contracts\Auth\Authenticatable
         */
@@ -126,6 +129,10 @@ trait PaymentProviderContractTest
        $mockOrder->shouldReceive('getCustomer')
            ->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+
+        $mockOrder->shouldReceive('getDescription')
+            //->once() // Uncomment out to make calling getDescription mandatory.
+            ->andReturn('test_can_cashier_init_payment');
 
        /**
         * @var \Illuminate\Contracts\Auth\Authenticatable

@@ -263,6 +263,60 @@ $pm->... e.g. delivery types etc
 $provider->save();
 ```
 
+### Testing 
+You should properly test your additional payment providers. Basic general tests are provided under the namespace, **\Autepos\AiPayment\Tests\ContractTests**. You may copy the tests and modify them or use the traits in your own tests. If you prefer to use the traits, you need to add **subjectInstance()** method which returns the class under test. Here is an example to test a payment provider implementation:
+
+```php
+use Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest;
+
+class BitcoinPaymentProviderTest extends PHPUnit_TestCase
+{
+    use PaymentProviderContractTest;
+
+    /**
+     * Hook for PaymentProviderContractTest
+     *
+     * @return void
+     */
+    public function subjectInstance(){
+        return new BitcoinPaymentProvider;
+    }
+}
+```
+
+This will run all the tests defined in PaymentProviderContractTest. You can also override any of the tests in PaymentProviderContractTest to modify it, and add additional tests:
+```php
+use Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest;
+
+class BitcoinPaymentProviderTest extends PHPUnit_TestCase
+{
+    use PaymentProviderContractTest;
+
+    /**
+     * Hook for PaymentProviderContractTest
+     *
+     * @return void
+     */
+    public function subjectInstance(){
+        return new BitcoinPaymentProvider;
+    }
+
+    /**
+     * Additional test
+     */
+    public function test_can_resolve_provider(){
+        // test code
+    }
+
+    /**
+     * Override the test_can_ping() from PaymentProviderContractTest.
+     */
+    public function test_can_ping(){
+        // test code
+    }
+}
+```
+
 ## Eloquent Models
 Since the following are pure Eloquent models, you are free to use them as so.
 - **Transaction**: Payment providers should manage transactions using this model. The host app should use this model to determine all payments made for an orderable.
