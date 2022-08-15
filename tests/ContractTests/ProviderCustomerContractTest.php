@@ -47,7 +47,10 @@ class ProviderCustomerContractTest
      */
     public function test_can_delete_customer(ProviderCustomer $paymentProviderCustomer)
     {
-        $paymentProviderCustomer->save();// We have to save this again as migration may be freshing every test.
+        // We have to save this again as migration may be freshing every test.
+        $paymentProviderCustomer = PaymentProviderCustomer::factory()
+        ->create($paymentProviderCustomer->attributesToArray());
+        
 
 
         // Delete it

@@ -57,7 +57,7 @@ trait PaymentProviderContractTest
    }
 
 
-   public function test_can_cashier_init_payment()
+   public function test_can_cashier_init_payment():Transaction
    {
        $amount = 1000;
 
@@ -111,6 +111,8 @@ trait PaymentProviderContractTest
        $this->assertEquals(1, $response->getTransaction()->orderable_id);
        $this->assertEquals(1, $response->getTransaction()->cashier_id);
        $this->assertTrue($response->getTransaction()->exists,'Failed asserting that transaction not stored');
+
+       return $response->getTransaction();
    }
 
 
@@ -266,33 +268,17 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
     }
 
-   public function test_can_cashier_charge_payment()
+    /**
+     *
+     * @depends test_can_cashier_init_payment
+     * @return void
+     */
+   public function test_can_cashier_charge_payment(Transaction $transaction)
    {
-       $amount = 1000;
-
-       /**
-        * @var \Autepos\AiPayment\Providers\Contracts\Orderable
-        */
-       $mockOrder = Mockery::mock(Orderable::class);
-       $mockOrder->shouldReceive('getAmount')
-       ->atLeast()
-           ->once()
-           ->andReturn($amount);
-
-       $mockOrder->shouldReceive('getKey')
-       ->atLeast()
-           ->once()
-           ->andReturn(1);
-
-       $mockOrder->shouldReceive('getCurrency')
-       ->atLeast()
-           ->once()
-           ->andReturn('gbp');
-
-       $mockOrder->shouldReceive('getCustomer')
-       ->atLeast()
-           ->once()
-           ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
+       // Since this is a new test the database would have been refreshed 
+       // so we need to re-add this transaction to db.
+       $transaction = Transaction::factory()->create($transaction->attributesToArray());
+       
 
        /**
         * @var \Illuminate\Contracts\Auth\Authenticatable
@@ -304,18 +290,21 @@ trait PaymentProviderContractTest
            ->andReturn(1);
 
        $response = $this->subjectInstanceOrFail($this->subjectContract)
-           ->order($mockOrder)
-           ->cashierCharge($mockCashier,null);
+           //->order($mockOrder)
+           ->cashierCharge($mockCashier,$transaction);
 
        $this->assertInstanceOf(PaymentResponse::class, $response);
        $this->assertEquals(ResponseType::TYPE_CHARGE, $response->getType()->getName());
        $this->assertTrue($response->success);
 
+       
        $this->assertInstanceOf(Transaction::class, $response->getTransaction());
        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
-       $this->assertEquals($amount, $response->getTransaction()->amount);
-       $this->assertEquals(1, $response->getTransaction()->orderable_id);
+        $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->orderable_amount);
+        $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->amount);
+        $this->assertEquals($transaction->orderable_id, $response->getTransaction()->orderable_id);
        $this->assertEquals(1, $response->getTransaction()->cashier_id);
+       
        $this->assertDatabaseHas($response->getTransaction(), ['id' => $response->getTransaction()->id]);
    }
 
