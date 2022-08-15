@@ -66,19 +66,23 @@ trait PaymentProviderContractTest
         */
        $mockOrder = Mockery::mock(Orderable::class);
        $mockOrder->shouldReceive('getAmount')
-           ->once()
+       ->atLeast()
+       ->once()
            ->andReturn($amount);
 
        $mockOrder->shouldReceive('getKey')
-           ->once()
+       ->atLeast()
+       ->once()
            ->andReturn(1);
 
        $mockOrder->shouldReceive('getCurrency')
-           ->once()
+       ->atLeast()
+       ->once()
            ->andReturn('gbp');
        
        $mockOrder->shouldReceive('getCustomer')
-           ->once()
+            ->atLeast()
+            ->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
         $mockOrder->shouldReceive('getDescription')
@@ -89,7 +93,8 @@ trait PaymentProviderContractTest
         */
        $mockCashier = Mockery::mock(Authenticatable::class);
        $mockCashier->shouldReceive('getAuthIdentifier')
-           ->once()
+            ->atLeast()
+            ->once()
            ->andReturn(1);
 
        $response = $this->subjectInstanceOrFail($this->subjectContract)
@@ -119,14 +124,17 @@ trait PaymentProviderContractTest
         */
        $mockOrder = Mockery::mock(Orderable::class);
        $mockOrder->shouldReceive('getKey')
+           ->atLeast()
            ->once()
            ->andReturn(1);
        
        $mockOrder->shouldReceive('getCurrency')
-           ->once()
+            ->atLeast()
+            ->once()
            ->andReturn('gbp');
 
        $mockOrder->shouldReceive('getCustomer')
+       ->atLeast()
            ->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
@@ -139,7 +147,8 @@ trait PaymentProviderContractTest
         */
        $mockCashier = Mockery::mock(Authenticatable::class);
        $mockCashier->shouldReceive('getAuthIdentifier')
-           ->once()
+            ->atLeast()
+            ->once()
            ->andReturn(1);
 
        $response = $this->subjectInstanceOrFail($this->subjectContract)
@@ -167,22 +176,27 @@ trait PaymentProviderContractTest
         */
        $mockOrder = Mockery::mock(Orderable::class);
        $mockOrder->shouldReceive('getAmount')
+       ->atLeast()
            ->once()
            ->andReturn($amount);
 
        $mockOrder->shouldReceive('getKey')
-           ->twice()
+       ->atLeast()
+           ->once()
            ->andReturn(1);
 
        $mockOrder->shouldReceive('getCurrency')
+       ->atLeast()
            ->once()
            ->andReturn('gbp');
 
        $mockOrder->shouldReceive('getCustomer')
-           ->twice()
+           ->atLeast()
+           ->once()
            ->andReturn(new CustomerData(['user_type' => 'customer', 'user_id' => '1', 'email' => 'test@test.com']));
 
        $mockOrder->shouldReceive('getDescription')
+       ->atLeast()
            ->once()
            ->andReturn('test_can_customer_init_payment');
 
@@ -217,18 +231,22 @@ trait PaymentProviderContractTest
          */
         $mockOrder = Mockery::mock(Orderable::class);
         $mockOrder->shouldReceive('getKey')
-            ->twice()
+            ->atLeast()
+            ->once()
             ->andReturn(1);
 
         $mockOrder->shouldReceive('getCurrency')
+        ->atLeast()
             ->once()
             ->andReturn('gbp');
 
         $mockOrder->shouldReceive('getCustomer')
-            ->twice()
+        ->atLeast()
+            ->once()
             ->andReturn(new CustomerData(['user_type' => 'customer', 'user_id' => null, 'email' => 'test@test.com']));
 
         $mockOrder->shouldReceive('getDescription')
+        ->atLeast()
             ->once()
             ->andReturn('test_can_cashier_init_payment');
 
@@ -257,18 +275,22 @@ trait PaymentProviderContractTest
         */
        $mockOrder = Mockery::mock(Orderable::class);
        $mockOrder->shouldReceive('getAmount')
+       ->atLeast()
            ->once()
            ->andReturn($amount);
 
        $mockOrder->shouldReceive('getKey')
+       ->atLeast()
            ->once()
            ->andReturn(1);
 
        $mockOrder->shouldReceive('getCurrency')
+       ->atLeast()
            ->once()
            ->andReturn('gbp');
 
        $mockOrder->shouldReceive('getCustomer')
+       ->atLeast()
            ->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
@@ -277,7 +299,8 @@ trait PaymentProviderContractTest
         */
        $mockCashier = Mockery::mock(Authenticatable::class);
        $mockCashier->shouldReceive('getAuthIdentifier')
-           ->twice() // 
+       ->atLeast()
+           ->once() // 
            ->andReturn(1);
 
        $response = $this->subjectInstanceOrFail($this->subjectContract)
@@ -371,15 +394,15 @@ trait PaymentProviderContractTest
        $mockOrder->shouldNotReceive('getAmount');
 
        $mockOrder->shouldReceive('getKey')
-           ->once()
+           //->once()
            ->andReturn(1);
 
        $mockOrder->shouldReceive('getCurrency')
-           ->once()
+           //->once()
            ->andReturn('gbp');
 
        $mockOrder->shouldReceive('getCustomer')
-           ->once()
+           //->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
        $parentTransaction = Transaction::factory()->create([
@@ -393,6 +416,7 @@ trait PaymentProviderContractTest
         */
        $mockCashier = Mockery::mock(Authenticatable::class);
        $mockCashier->shouldReceive('getAuthIdentifier')
+       ->atLeast()
            ->once() // 
            ->andReturn(1);
 
@@ -436,15 +460,15 @@ trait PaymentProviderContractTest
        $mockOrder->shouldNotReceive('getAmount');
 
        $mockOrder->shouldReceive('getKey')
-           ->once()
+           //->once()
            ->andReturn(1);
 
        $mockOrder->shouldReceive('getCurrency')
-           ->once()
+           //->once()
            ->andReturn('gbp');
 
        $mockOrder->shouldReceive('getCustomer')
-           ->once()
+           //->once()
            ->andReturn(new CustomerData(['user_type'=>'test-user','user_id'=>'1','email'=>'test@test.com']));
 
        $parentTransaction = Transaction::factory()->create([
@@ -458,6 +482,7 @@ trait PaymentProviderContractTest
         */
        $mockCashier = Mockery::mock(Authenticatable::class);
        $mockCashier->shouldReceive('getAuthIdentifier')
+       ->atLeast()
            ->once()
            ->andReturn(1);
 
