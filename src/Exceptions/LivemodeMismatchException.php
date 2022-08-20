@@ -7,7 +7,9 @@ use Autepos\AiPayment\Models\Transaction;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
-
+/**
+ * Occurs when the livemode property of two entities mismatches.
+ */
 class LivemodeMismatchException extends \Exception implements ExceptionInterface
 {
 

@@ -19,8 +19,9 @@ use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use \Autepos\AiPayment\Exceptions\TransactionPaymentProviderMismatchException;
 
 /**
- * The payment service is a convenience class of methods for interacting 
- * with payment provider.
+ * The payment service is a convenience class of methods for safe interaction 
+ * with payment provider. It conducts checks that may not be available when 
+ * calling a payment provider directly.
  * 
  * The payment service is itself implemented as a payment provider which forwards  
  * most of the calls on it to a set payment provider.
@@ -34,7 +35,7 @@ class PaymentService extends PaymentProvider
      * @var string
      */
     const VERSION = '1.0.0-beta5';
-    
+
     /**
      * Provider
      *
@@ -104,9 +105,9 @@ class PaymentService extends PaymentProvider
      * @param  callable  $callback
      * @return void
      */
-    public static function getConfigUsing(callable $callback){
+    public static function getConfigUsing(callable $callback)
+    {
         static::$getConfigUsing = $callback;
-    
     }
     /** 
      * @todo unit test
@@ -122,20 +123,21 @@ class PaymentService extends PaymentProvider
      * @return array [config(array),livemode(bool)]
      * @throws \InvalidArgumentException if static::$getConfigUsing returns an invalid value.
      */
-    public static function getConfigUsingFcn(string $payment_provider,$tenant_id){
-        
+    public static function getConfigUsingFcn(string $payment_provider, $tenant_id)
+    {
+
         if (static::$getConfigUsing) {
 
-            [$config,$livemode] =call_user_func(static::$getConfigUsing, $payment_provider,$tenant_id);
+            [$config, $livemode] = call_user_func(static::$getConfigUsing, $payment_provider, $tenant_id);
 
             // Validate return value.
-            if(is_array($config) and is_bool($livemode)){
-                return [$config,$livemode];
-            }else{
+            if (is_array($config) and is_bool($livemode)) {
+                return [$config, $livemode];
+            } else {
                 throw new \InvalidArgumentException('The user function, getConfigUsing, must return return an array with config(array) as first item and livemode(bool) as second, i.e. array(array(),bool)');
             }
         }
-        return [[],false];
+        return [[], false];
     }
 
 
@@ -195,6 +197,8 @@ class PaymentService extends PaymentProvider
     /**
      * Make a charge as a customer
      * @param array $data Arbitrary data for the provider
+     * 
+     * @throws TransactionPaymentProviderMismatchException|LivemodeMismatchException
      */
     public function charge(Transaction $transaction,  array $data = []): PaymentResponse
     {
@@ -422,7 +426,20 @@ class PaymentService extends PaymentProvider
     /**
      * Generate the public id for an entity.
      */
-    public static function generatePid():string{
+    public static function generatePid(): string
+    {
         return (string) Str::uuid();
+    }
+
+    /**
+     * Pass an unknown method call to the underlying provider.
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        return $this->providerInstance()->{$name}(...$arguments);
     }
 }

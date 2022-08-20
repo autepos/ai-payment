@@ -26,7 +26,7 @@ php artisan migrate
 ```
 
 ## Usage
-To obtain payment service, build it through the container so its dependencies are auto resolved:
+For safe interaction with payment providers, use the payment service. To obtain payment service, build it through the container so its dependencies are auto resolved:
 ```php
 $paymentService=app(\Autepos\AiPayment\PaymentService::class)
 ```

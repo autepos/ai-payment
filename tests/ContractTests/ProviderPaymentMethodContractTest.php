@@ -13,7 +13,7 @@ use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
  * 
  * @see \Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest to get idea on usage.
  * 
- * TODO: These tests have themselves not been tested
+ * TODO: These tests have themselves not been tested.
  */
 trait ProviderPaymentMethodContractTest 
 {

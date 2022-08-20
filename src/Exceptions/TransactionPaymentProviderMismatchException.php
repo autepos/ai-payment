@@ -6,7 +6,9 @@ use Autepos\AiPayment\PaymentResponse;
 use Autepos\AiPayment\Models\Transaction;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
-
+/**
+ * Occurs when a payment provider attempts to process a transaction that it didn't create/own.
+ */
 class TransactionPaymentProviderMismatchException extends \Exception implements ExceptionInterface
 {
 

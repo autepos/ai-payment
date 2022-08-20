@@ -8,6 +8,8 @@ use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 
 /**
+ * Occurs if a given transaction does not belong to a given order.
+ * 
  * Note: If a programmer is requiring Orderable when processing a 
  * charge, this Exception can be used when required
  */
