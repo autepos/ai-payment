@@ -101,7 +101,8 @@ trait PaymentProviderContractTest
             ->once()
             ->andReturn(1);
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->order($mockOrder)
             ->cashierInit($mockCashier, null);
 
@@ -110,7 +111,7 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->success);
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals(1, $response->getTransaction()->orderable_id);
         $this->assertEquals(1, $response->getTransaction()->cashier_id);
@@ -157,7 +158,8 @@ trait PaymentProviderContractTest
             ->once()
             ->andReturn(1);
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->order($mockOrder)
             ->cashierInit($mockCashier, $amount);
 
@@ -166,7 +168,7 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->success);
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
         $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
     }
@@ -207,7 +209,8 @@ trait PaymentProviderContractTest
             ->andReturn('test_can_customer_init_payment');
 
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->order($mockOrder)
             ->init(null);
 
@@ -216,7 +219,7 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->success);
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals('gbp', $response->getTransaction()->currency);
         $this->assertEquals(1, $response->getTransaction()->orderable_id);
@@ -257,8 +260,8 @@ trait PaymentProviderContractTest
             ->andReturn('test_can_cashier_init_payment');
 
 
-
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->order($mockOrder)
             ->init($amount);
 
@@ -267,7 +270,7 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->success);
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
         $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
     }
@@ -293,7 +296,8 @@ trait PaymentProviderContractTest
             ->once() // 
             ->andReturn(1);
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->cashierCharge($mockCashier, $transaction);
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
@@ -302,7 +306,7 @@ trait PaymentProviderContractTest
 
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->amount);
         $this->assertEquals($transaction->orderable_id, $response->getTransaction()->orderable_id);
@@ -321,7 +325,8 @@ trait PaymentProviderContractTest
         $transaction = Transaction::factory()->create($transaction->attributesToArray());
 
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $response = $providerInstance
             ->charge($transaction);
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
@@ -329,7 +334,7 @@ trait PaymentProviderContractTest
         $this->assertTrue($response->success);
 
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
-        $this->assertEquals($this->provider, $response->getTransaction()->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertTrue($response->getTransaction()->success);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals($transaction->orderable_amount, $response->getTransaction()->amount);
@@ -348,9 +353,11 @@ trait PaymentProviderContractTest
     {
         $amount = 1000;
 
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+
         $parentTransaction = Transaction::factory()->create([
             'orderable_id' => 1,
-            'payment_provider' => $this->provider,
+            'payment_provider' => $providerInstance->getProvider(),
             'amount' => $amount,
         ]);
 
@@ -363,7 +370,8 @@ trait PaymentProviderContractTest
             ->once() // 
             ->andReturn(1);
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        
+        $response = $providerInstance
             ->refund($mockCashier, $parentTransaction, $amount, 'Refund');
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
@@ -378,7 +386,7 @@ trait PaymentProviderContractTest
         //
         $refundTransaction = $response->getTransaction();
         $this->assertInstanceOf(Transaction::class, $refundTransaction);
-        $this->assertEquals($this->provider, $refundTransaction->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $refundTransaction->payment_provider);
         $this->assertTrue($refundTransaction->refund);
         $this->assertEquals(0, $refundTransaction->amount);
         $this->assertEquals(-$amount, $refundTransaction->amount_refunded);
@@ -395,9 +403,11 @@ trait PaymentProviderContractTest
         $amount = 1000;
         $part_refund_amount = 500;
 
+        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+
         $parentTransaction = Transaction::factory()->create([
             'orderable_id' => 1,
-            'payment_provider' => $this->provider,
+            'payment_provider' => $providerInstance->getProvider(),
             'amount' => $amount,
         ]);
 
@@ -410,7 +420,8 @@ trait PaymentProviderContractTest
             ->once()
             ->andReturn(1);
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        
+        $response = $providerInstance
             ->refund($mockCashier, $parentTransaction, $part_refund_amount, 'Overpayment');
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
@@ -424,7 +435,7 @@ trait PaymentProviderContractTest
         //
         $refundTransaction = $response->getTransaction();
         $this->assertInstanceOf(Transaction::class, $refundTransaction);
-        $this->assertEquals($this->provider, $refundTransaction->payment_provider);
+        $this->assertEquals($providerInstance->getProvider(), $refundTransaction->payment_provider);
         $this->assertTrue($refundTransaction->refund);
         $this->assertEquals(0, $refundTransaction->amount);
         $this->assertEquals(-$part_refund_amount, $refundTransaction->amount_refunded);
@@ -440,11 +451,11 @@ trait PaymentProviderContractTest
     public function test_can_sync_transaction()
     {
 
-        $paymentProvider = $this->subjectInstanceOrFail($this->subjectContract);
+        $paymentInstance = $this->subjectInstanceOrFail($this->subjectContract);
         $transaction = Transaction::factory()->make([
-            'payment_provider' => $this->provider,
+            'payment_provider' => $paymentInstance->getProvider(),
         ]);
-        $response = $paymentProvider->syncTransaction($transaction);
+        $response = $paymentInstance->syncTransaction($transaction);
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
         $this->assertEquals($response->getType()->getName(), ResponseType::TYPE_RETRIEVE);
