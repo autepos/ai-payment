@@ -448,13 +448,23 @@ trait PaymentProviderContractTest
     }
 
 
-    public function test_can_sync_transaction()
+    /**
+     * @depends test_can_cashier_init_payment
+     *
+     */
+    public function test_can_sync_transaction(Transaction $transaction)
     {
+        // Since this is a new test the database would have been refreshed 
+        // so we need to re-add this transaction to db.
+        $transaction = Transaction::factory()->create($transaction->attributesToArray());
+        /** OR ->tell Laravel that the model does not exists and then save it.
+         * $transaction->exists=false;
+         * $transaction->save();
+         */
+
 
         $paymentInstance = $this->subjectInstanceOrFail($this->subjectContract);
-        $transaction = Transaction::factory()->make([
-            'payment_provider' => $paymentInstance->getProvider(),
-        ]);
+
         $response = $paymentInstance->syncTransaction($transaction);
 
         $this->assertInstanceOf(PaymentResponse::class, $response);
