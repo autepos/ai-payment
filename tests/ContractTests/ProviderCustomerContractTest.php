@@ -3,6 +3,7 @@
 namespace Autepos\AiPayment\Tests\ContractTests;
 
 use Autepos\AiPayment\ResponseType;
+use Autepos\AiPayment\CustomerResponse;
 use Autepos\AiPayment\Contracts\CustomerData;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
@@ -13,19 +14,18 @@ use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
  * 
  * @see \Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest to get idea on usage.
  * 
- * TODO: These tests have themselves not been tested
  */
-class ProviderCustomerContractTest
+trait ProviderCustomerContractTest
 {
     use ContractTestBase;
-    
-    protected $subjectContract=ProviderCustomer::class;
+
+    protected $subjectContract = ProviderCustomer::class;
 
     public function test_can_create_customer()
     {
         $customerData = new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']);
-        
-        $subjectInstance=$this->subjectInstanceOrFail($this->subjectContract);
+
+        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
         $response = $subjectInstance->create($customerData);
 
 
@@ -45,16 +45,15 @@ class ProviderCustomerContractTest
      * @depends test_can_create_customer
      *
      */
-    public function test_can_delete_customer(ProviderCustomer $paymentProviderCustomer)
+    public function test_can_delete_customer(PaymentProviderCustomer $paymentProviderCustomer)
     {
         // We have to save this again as migration may be freshing every test.
         $paymentProviderCustomer = PaymentProviderCustomer::factory()
-        ->create($paymentProviderCustomer->attributesToArray());
-        
+            ->create($paymentProviderCustomer->attributesToArray());
 
 
         // Delete it
-        $subjectInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
         $response = $subjectInstance->delete($paymentProviderCustomer);
 
         $this->assertInstanceOf(CustomerResponse::class, $response);
@@ -65,6 +64,5 @@ class ProviderCustomerContractTest
         $this->assertDatabaseMissing(new PaymentProviderCustomer(), [
             'id' => $paymentProviderCustomer->id,
         ]);
-
     }
 }
