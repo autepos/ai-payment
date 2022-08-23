@@ -5,6 +5,7 @@ namespace Autepos\AiPayment\Tests\ContractTests;
 use Illuminate\Support\Str;
 use Autepos\AiPayment\PaymentMethodResponse;
 use Autepos\AiPayment\Contracts\CustomerData;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
@@ -15,49 +16,24 @@ use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
  * 
  * @see \Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest to get idea on usage.
  * 
- * TODO: These tests have themselves not been tested.
+ * 
  */
-trait ProviderPaymentMethodContractTest 
+trait ProviderPaymentMethodContractTest
 {
-    
-    use ContractTestBase;
 
-    protected $subjectContract=ProviderPaymentMethod::class;
-        /**
-     * Get the data required to save a payment method
-     * 
-     * @return array An array of data required to save a payment method.
-     * 
-     * @throws  \Exception If paymentMethodDataForSave() is not defined in the user test or the method is not retuning an array.
-     */
-    private function paymentMethodDataForSaveOrFail()
-    {
-        if (method_exists($this, 'paymentMethodDataForSave')) {
-            $data= $this->paymentMethodDataForSave();
-            if (is_array($data)) {
-                return $data;
-            }
-        }
-        throw new \Exception('paymentMethodDataForSave() is missing or is returning not returning an array. Tips: Override the paymentMethodDataForSave() method in your test. You should then return an data array required to save a payment method from the paymentMethodDataForSave()');
-    }
-        /**
-     * Create an instance of payment provider customer for Stripe
+    use ContractTestBase;
+    use RefreshDatabase;
+
+    protected $subjectContract = ProviderPaymentMethod::class;
+
+
+    /**
+     * Return data array required to save a payment method.
      *
-     * @param string $user_type @see PaymentProviderCustomer table
-     * @param string $user_id @see PaymentProviderCustomer table
-     * @param string $name The name of the customer
-     * @param string $email
+     * @return array An array of data required to save a payment method.
      */
-    private function createTestPaymentProviderCustomer(string $user_type = 'test-payment-provider-customer', string $user_id = '1', string $name = null, string $email = null): PaymentProviderCustomer
-    {
-        return PaymentProviderCustomer::factory()->create([
-            'payment_provider' => $this->subjectInstanceOrFail($this->subjectContract)->getProvider()->getProvider(),
-            'payment_provider_customer_id' => (string)Str::uuid(),
-            'user_type' => $user_type,
-            'user_id' => $user_id,
-        ]);
-    }
-    
+    abstract function paymentMethodDataForSave():array;
+
     public function test_can_init_payment_method()
     {
 
@@ -66,31 +42,31 @@ trait ProviderPaymentMethodContractTest
         $this->assertInstanceOf(PaymentMethodResponse::class, $response);
     }
 
-    public function test_can_save_payment_method()
+    public function test_can_save_payment_method(): PaymentProviderCustomerAndPaymentMethodPair
     {
-        $user_type = 'type-is-test-class';
-        $user_id = '21022022';
-        $email = 'tester@autepos.com';
+        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $customerData = $subjectInstance->getCustomerData();
 
-        // Create a payment-provider-customer that will be used under the hood
-        $paymentProviderCustomer = $this->createTestPaymentProviderCustomer(
-            $user_type,
-            $user_id,
-            'name is tester',
-            $email
-        );
 
-       
-        //
-
-        $subjectInstance=$this->subjectInstanceOrFail($this->subjectContract);
-
-        if(is_null($subjectInstance->getCustomerData())){
+        $user_type = null;
+        $user_id = null;
+        $email = null;
+        if ($customerData) {
+            $user_type = $customerData->user_type;
+            $user_id = $customerData->user_id;
+            $email = $customerData->email;
+        } else {
+            $user_type = 'type-is-test-class';
+            $user_id = '21022022';
+            $email = 'tester@autepos.com';
             $customerData = new CustomerData(['user_type' => $user_type, 'user_id' => $user_id, 'email' => $email]);
             $subjectInstance->customerData($customerData);
         }
+
+
+
         // Save the payment method
-        $response = $subjectInstance->save($this->paymentMethodDataForSaveOrFail());
+        $response = $subjectInstance->save($this->paymentMethodDataForSave());
 
 
 
@@ -103,51 +79,73 @@ trait ProviderPaymentMethodContractTest
         $this->assertTrue($paymentProviderCustomerPaymentMethod->exists);
         $this->assertInstanceOf(PaymentProviderCustomerPaymentMethod::class, $paymentProviderCustomerPaymentMethod);
 
-        $this->assertEquals($paymentProviderCustomer->id, $paymentProviderCustomerPaymentMethod->payment_provider_customer_id);
+
+        $this->assertNotNull($paymentProviderCustomerPaymentMethod->payment_provider_customer_id);
         $this->assertEquals($subjectInstance->getProvider()->getProvider(), $paymentProviderCustomerPaymentMethod->payment_provider);
 
-        $this->assertNotNull($paymentProviderCustomerPaymentMethod->type);// TODO do we really need this?
 
-
+        return new PaymentProviderCustomerAndPaymentMethodPair(
+            $paymentProviderCustomerPaymentMethod->customer,
+            $paymentProviderCustomerPaymentMethod
+        );
     }
 
 
+
     /**
-     * If the dependent test fails there is no need to run this test: that is the only point of the dependence here.
+     * 
      * @depends test_can_save_payment_method
      *
      */
-    public function test_can_remove_payment_method()
+    public function test_can_remove_payment_method(PaymentProviderCustomerAndPaymentMethodPair $pair)
     {
-        $user_type = 'type-is-test-class';
-        $user_id = '21022022';
-        $email = 'tester@autepos.com';
-
-        // Create a payment-provider-customer that will be used under the hood
-        $paymentProviderCustomer = $this->createTestPaymentProviderCustomer(
-            $user_type,
-            $user_id,
-            'name is tester',
-            $email
-        );
-
-        $subjectInstance=$this->subjectInstanceOrFail($this->subjectContract);
-
-        if(is_null($subjectInstance->getCustomerData())){
-            $customerData = new CustomerData(['user_type' => $user_type, 'user_id' => $user_id, 'email' => $email]);
-            $subjectInstance->customerData($customerData);
-        }
-        // Save the payment method
-        $response = $subjectInstance->save($this->paymentMethodDataForSaveOrFail());
 
 
-        // Now that it has been saved we should try to remove it
-        $paymentProviderCustomerPaymentMethod = $response->getPaymentProviderCustomerPaymentMethod();
-        $response = $subjectInstance()
+        // Since this is a new test the database would have been refreshed 
+        // so we need to re-add items to db.
+        PaymentProviderCustomer::factory()
+            ->create($pair->paymentProviderCustomer->attributesToArray());
+        $paymentProviderCustomerPaymentMethod = PaymentProviderCustomerPaymentMethod::factory()
+            ->create($pair->paymentProviderCustomerPaymentMethod->attributesToArray());
+
+        //
+        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+
+
+
+        // 
+        $response = $subjectInstance
             ->remove($paymentProviderCustomerPaymentMethod);
+
+        $this->assertTrue($response->success);
 
         // It should now be deleted
         $this->assertDatabaseMissing($paymentProviderCustomerPaymentMethod, ['id' => $paymentProviderCustomerPaymentMethod->id]);
+    }
+}
 
+/**
+ * A class that holds a provider payment method model and the corresponding customer model
+ */
+class PaymentProviderCustomerAndPaymentMethodPair
+{
+    /**
+     *  The corresponding provider customer
+     * @var PaymentProviderCustomer
+     */
+    public $paymentProviderCustomer;
+
+    /**
+     * The provider payment method
+     * @var PaymentProviderCustomerPaymentMethod 
+     */
+    public $paymentProviderCustomerPaymentMethod;
+
+    public function __construct(
+        PaymentProviderCustomer $paymentProviderCustomer,
+        PaymentProviderCustomerPaymentMethod $paymentProviderCustomerPaymentMethod
+    ) {
+        $this->paymentProviderCustomer = $paymentProviderCustomer;
+        $this->paymentProviderCustomerPaymentMethod = $paymentProviderCustomerPaymentMethod;
     }
 }
