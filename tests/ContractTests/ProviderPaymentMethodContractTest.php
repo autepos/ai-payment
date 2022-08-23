@@ -3,9 +3,11 @@
 namespace Autepos\AiPayment\Tests\ContractTests;
 
 use Illuminate\Support\Str;
+use Autepos\AiPayment\PaymentMethodResponse;
 use Autepos\AiPayment\Contracts\CustomerData;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
+use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 
 /**
  * Defines the most BASIC tests a \Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod 
@@ -26,17 +28,17 @@ trait ProviderPaymentMethodContractTest
      * 
      * @return array An array of data required to save a payment method.
      * 
-     * @throws  \Exception If paymentMethodSaveData() is not defined in the user test or the method is not retuning an array.
+     * @throws  \Exception If paymentMethodDataForSave() is not defined in the user test or the method is not retuning an array.
      */
-    private function paymentMethodSaveDataOrFail()
+    private function paymentMethodDataForSaveOrFail()
     {
-        if (method_exists($this, 'paymentMethodSaveData')) {
-            $data= $this->paymentMethodSaveData();
+        if (method_exists($this, 'paymentMethodDataForSave')) {
+            $data= $this->paymentMethodDataForSave();
             if (is_array($data)) {
                 return $data;
             }
         }
-        throw new \Exception('paymentMethodSaveData() is missing or is returning not returning an array. Tips: Override the paymentMethodSaveData() method in your test. You should then return an data array required to save a payment method from the paymentMethodSaveData()');
+        throw new \Exception('paymentMethodDataForSave() is missing or is returning not returning an array. Tips: Override the paymentMethodDataForSave() method in your test. You should then return an data array required to save a payment method from the paymentMethodDataForSave()');
     }
         /**
      * Create an instance of payment provider customer for Stripe
@@ -49,7 +51,7 @@ trait ProviderPaymentMethodContractTest
     private function createTestPaymentProviderCustomer(string $user_type = 'test-payment-provider-customer', string $user_id = '1', string $name = null, string $email = null): PaymentProviderCustomer
     {
         return PaymentProviderCustomer::factory()->create([
-            'payment_provider' => $this->subjectInstanceOrFail($this->subjectContract)->provider->getProvider(),
+            'payment_provider' => $this->subjectInstanceOrFail($this->subjectContract)->getProvider()->getProvider(),
             'payment_provider_customer_id' => (string)Str::uuid(),
             'user_type' => $user_type,
             'user_id' => $user_id,
@@ -88,7 +90,7 @@ trait ProviderPaymentMethodContractTest
             $subjectInstance->customerData($customerData);
         }
         // Save the payment method
-        $response = $subjectInstance->save($this->getPaymentMethodSaveDataOrFail());
+        $response = $subjectInstance->save($this->paymentMethodDataForSaveOrFail());
 
 
 
@@ -102,7 +104,7 @@ trait ProviderPaymentMethodContractTest
         $this->assertInstanceOf(PaymentProviderCustomerPaymentMethod::class, $paymentProviderCustomerPaymentMethod);
 
         $this->assertEquals($paymentProviderCustomer->id, $paymentProviderCustomerPaymentMethod->payment_provider_customer_id);
-        $this->assertEquals($subjectInstance->provider->getProvider(), $paymentProviderCustomerPaymentMethod->payment_provider);
+        $this->assertEquals($subjectInstance->getProvider()->getProvider(), $paymentProviderCustomerPaymentMethod->payment_provider);
 
         $this->assertNotNull($paymentProviderCustomerPaymentMethod->type);// TODO do we really need this?
 
@@ -136,7 +138,7 @@ trait ProviderPaymentMethodContractTest
             $subjectInstance->customerData($customerData);
         }
         // Save the payment method
-        $response = $subjectInstance->save($this->getPaymentMethodSaveDataOrFail());
+        $response = $subjectInstance->save($this->paymentMethodDataForSaveOrFail());
 
 
         // Now that it has been saved we should try to remove it

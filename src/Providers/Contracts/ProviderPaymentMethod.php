@@ -35,6 +35,14 @@ abstract class ProviderPaymentMethod
         return $this;
     }
 
+    /**
+     * Get the provider.
+     */
+    public function getProvider():PaymentProvider
+    {
+        return $this->provider;
+    }
+
 
     /**
      * Set the customer data

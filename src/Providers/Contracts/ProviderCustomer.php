@@ -28,6 +28,14 @@ abstract class ProviderCustomer
     }
 
     /**
+     * Get the provider.
+     */
+    public function getProvider():PaymentProvider
+    {
+        return $this->provider;
+    }
+
+    /**
      * Check if there is a matching record already created for the given customer data.
      */
     public function has(CustomerData $customerData): bool
