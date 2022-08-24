@@ -118,7 +118,7 @@ trait PaymentProviderContractTest
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
         $this->assertEquals(1, $response->getTransaction()->orderable_id);
         $this->assertEquals(1, $response->getTransaction()->cashier_id);
-        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction is stored');
 
         return $response->getTransaction();
     }
@@ -173,7 +173,7 @@ trait PaymentProviderContractTest
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
         $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
-        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction is stored');
     }
 
     public function test_can_customer_init_payment(): Transaction
@@ -227,7 +227,7 @@ trait PaymentProviderContractTest
         $this->assertEquals('gbp', $response->getTransaction()->currency);
         $this->assertEquals(1, $response->getTransaction()->orderable_id);
         $this->assertNull($response->getTransaction()->cashier_id);
-        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction is stored');
 
         return $response->getTransaction();
     }
@@ -275,7 +275,7 @@ trait PaymentProviderContractTest
         $this->assertInstanceOf(Transaction::class, $response->getTransaction());
         $this->assertEquals($providerInstance->getProvider(), $response->getTransaction()->payment_provider);
         $this->assertEquals($amount, $response->getTransaction()->orderable_amount);
-        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction not stored');
+        $this->assertTrue($response->getTransaction()->exists, 'Failed asserting that transaction is stored');
     }
 
     /**
