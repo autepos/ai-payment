@@ -2,10 +2,9 @@
 
 namespace Autepos\AiPayment\Tests\ContractTests;
 
-use Illuminate\Support\Str;
+
 use Autepos\AiPayment\PaymentMethodResponse;
 use Autepos\AiPayment\Contracts\CustomerData;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Models\PaymentProviderCustomer;
 use Autepos\AiPayment\Providers\Contracts\ProviderPaymentMethod;
 use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
@@ -21,30 +20,31 @@ use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 trait ProviderPaymentMethodContractTest
 {
 
-    use ContractTestBase;
-    use RefreshDatabase;
-
-    protected $subjectContract = ProviderPaymentMethod::class;
-
+    /**
+     * Get the instance of the implementation of the subject contract. This is the 
+     * instance that needs to be tested.
+     *
+     */
+    abstract public function createContract(): ProviderPaymentMethod;
 
     /**
      * Return data array required to save a payment method.
      *
      * @return array An array of data required to save a payment method.
      */
-    abstract function paymentMethodDataForSave():array;
+    abstract function paymentMethodDataForSave(): array;
 
     public function test_can_init_payment_method()
     {
 
-        $response = $this->subjectInstanceOrFail($this->subjectContract)
+        $response = $this->createContract()
             ->init([]);
         $this->assertInstanceOf(PaymentMethodResponse::class, $response);
     }
 
     public function test_can_save_payment_method(): PaymentProviderCustomerAndPaymentMethodPair
     {
-        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $subjectInstance = $this->createContract();
         $customerData = $subjectInstance->getCustomerData();
 
 
@@ -109,7 +109,7 @@ trait ProviderPaymentMethodContractTest
             ->create($pair->paymentProviderCustomerPaymentMethod->attributesToArray());
 
         //
-        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $subjectInstance = $this->createContract();
 
 
 

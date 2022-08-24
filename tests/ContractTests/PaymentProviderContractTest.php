@@ -11,7 +11,7 @@ use Autepos\AiPayment\Contracts\CustomerData;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
-use Autepos\AiPayment\Tests\ContractTests\ContractTestBase;
+
 
 /**
  * Defines the most BASIC tests a \Autepos\AiPayment\Providers\Contracts\PaymentProvider 
@@ -28,14 +28,17 @@ use Autepos\AiPayment\Tests\ContractTests\ContractTestBase;
  */
 trait PaymentProviderContractTest
 {
-    use ContractTestBase;
 
-    protected $subjectContract = PaymentProvider::class;
-
+    /**
+     * Get the instance of the implementation of the subject contract. This is the 
+     * instance that needs to be tested.
+     *
+     */
+    abstract public function createContract():PaymentProvider;
 
     public function test_can_up()
     {
-        $response = $this->subjectInstanceOrFail($this->subjectContract)->up();
+        $response = $this->createContract()->up();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
         $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
@@ -44,7 +47,7 @@ trait PaymentProviderContractTest
 
     public function test_can_down()
     {
-        $response = $this->subjectInstanceOrFail($this->subjectContract)->down();
+        $response = $this->createContract()->down();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
         $this->assertEquals(ResponseType::TYPE_SAVE, $response->getType()->getName());
@@ -53,7 +56,7 @@ trait PaymentProviderContractTest
 
     public function test_can_ping()
     {
-        $response = $this->subjectInstanceOrFail($this->subjectContract)->ping();
+        $response = $this->createContract()->ping();
 
         $this->assertInstanceOf(SimpleResponse::class, $response);
         $this->assertEquals(ResponseType::TYPE_PING, $response->getType()->getName());
@@ -101,7 +104,7 @@ trait PaymentProviderContractTest
             ->once()
             ->andReturn(1);
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->order($mockOrder)
             ->cashierInit($mockCashier, null);
@@ -158,7 +161,7 @@ trait PaymentProviderContractTest
             ->once()
             ->andReturn(1);
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->order($mockOrder)
             ->cashierInit($mockCashier, $amount);
@@ -209,7 +212,7 @@ trait PaymentProviderContractTest
             ->andReturn('test_can_customer_init_payment');
 
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->order($mockOrder)
             ->init(null);
@@ -260,7 +263,7 @@ trait PaymentProviderContractTest
             ->andReturn('test_can_cashier_init_payment');
 
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->order($mockOrder)
             ->init($amount);
@@ -296,7 +299,7 @@ trait PaymentProviderContractTest
             ->once() // 
             ->andReturn(1);
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->cashierCharge($mockCashier, $transaction);
 
@@ -325,7 +328,7 @@ trait PaymentProviderContractTest
         $transaction = Transaction::factory()->create($transaction->attributesToArray());
 
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
         $response = $providerInstance
             ->charge($transaction);
 
@@ -353,7 +356,7 @@ trait PaymentProviderContractTest
     {
         $amount = 1000;
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
 
         $parentTransaction = Transaction::factory()->create([
             'orderable_id' => 1,
@@ -403,7 +406,7 @@ trait PaymentProviderContractTest
         $amount = 1000;
         $part_refund_amount = 500;
 
-        $providerInstance=$this->subjectInstanceOrFail($this->subjectContract);
+        $providerInstance=$this->createContract();
 
         $parentTransaction = Transaction::factory()->create([
             'orderable_id' => 1,
@@ -463,7 +466,7 @@ trait PaymentProviderContractTest
          */
 
 
-        $paymentInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $paymentInstance = $this->createContract();
 
         $response = $paymentInstance->syncTransaction($transaction);
 

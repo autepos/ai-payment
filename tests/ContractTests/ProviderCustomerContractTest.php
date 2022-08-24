@@ -17,15 +17,18 @@ use Autepos\AiPayment\Providers\Contracts\ProviderCustomer;
  */
 trait ProviderCustomerContractTest
 {
-    use ContractTestBase;
-
-    protected $subjectContract = ProviderCustomer::class;
+    /**
+     * Get the instance of the implementation of the subject contract. This is the 
+     * instance that needs to be tested.
+     *
+     */
+    abstract public function createContract(): ProviderCustomer;
 
     public function test_can_create_customer()
     {
         $customerData = new CustomerData(['user_type' => 'test-user', 'user_id' => '1', 'email' => 'test@test.com']);
 
-        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $subjectInstance = $this->createContract();
         $response = $subjectInstance->create($customerData);
 
 
@@ -53,7 +56,7 @@ trait ProviderCustomerContractTest
 
 
         // Delete it
-        $subjectInstance = $this->subjectInstanceOrFail($this->subjectContract);
+        $subjectInstance = $this->createContract();
         $response = $subjectInstance->delete($paymentProviderCustomer);
 
         $this->assertInstanceOf(CustomerResponse::class, $response);

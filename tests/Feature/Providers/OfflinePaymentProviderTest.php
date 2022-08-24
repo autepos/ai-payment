@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Autepos\AiPayment\Providers\Contracts\Orderable;
 use Autepos\AiPayment\Contracts\PaymentProviderFactory;
+use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 use Autepos\AiPayment\Providers\OfflinePaymentProvider;
 use Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest;
 
@@ -43,9 +44,9 @@ class OfflinePaymentProviderTest extends TestCase
     /**
      * Hook for PaymentProviderContractTest
      *
-     * @return void
      */
-    public function subjectInstance(){
+    public function createContract(): PaymentProvider
+    {
         return $this->providerInstance();
     }
 

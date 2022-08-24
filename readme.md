@@ -264,7 +264,7 @@ $provider->save();
 ```
 
 ### Testing 
-You should properly test your additional payment providers. Basic general tests are provided under the namespace, **\Autepos\AiPayment\Tests\ContractTests**. You may copy the tests and modify them or use the traits in your own tests. If you prefer to use the traits, you need to add **subjectInstance()** method which returns the class under test. Here is an example to test a payment provider implementation:
+You should properly test your additional payment providers. Basic general tests are provided under the namespace, **\Autepos\AiPayment\Tests\ContractTests**. You may copy the tests and modify them or use the traits in your own tests. You do not have to use these tests. If you prefer to use the traits, you need to add **createContract()** method which returns the class under test. Here is an example to test a payment provider implementation:
 
 ```php
 use Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest;
@@ -278,7 +278,7 @@ class BitcoinPaymentProviderTest extends PHPUnit_TestCase
      *
      * @return void
      */
-    public function subjectInstance(){
+    public function createContract():PaymentProvider{
         return new BitcoinPaymentProvider;
     }
 }
@@ -286,6 +286,7 @@ class BitcoinPaymentProviderTest extends PHPUnit_TestCase
 
 This will run all the tests defined in PaymentProviderContractTest. You can also override any of the tests in PaymentProviderContractTest to modify it, and add additional tests:
 ```php
+use Autepos\AiPayment\Providers\Contracts\PaymentProvider;
 use Autepos\AiPayment\Tests\ContractTests\PaymentProviderContractTest;
 
 class BitcoinPaymentProviderTest extends PHPUnit_TestCase
@@ -297,7 +298,7 @@ class BitcoinPaymentProviderTest extends PHPUnit_TestCase
      *
      * @return void
      */
-    public function subjectInstance(){
+    public function createContract():PaymentProvider{
         return new BitcoinPaymentProvider;
     }
 
