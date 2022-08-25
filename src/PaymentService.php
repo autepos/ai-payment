@@ -41,7 +41,7 @@ class PaymentService extends PaymentProvider
      *
      * @var string
      */
-    protected $provider;
+    protected $provider=null;
 
     /**
      * The custom configuration function.
@@ -87,6 +87,16 @@ class PaymentService extends PaymentProvider
     }
 
 
+    /**
+     * Set the provider using the given transaction if the provider 
+     * has not been set already.
+     */
+    protected function setMissingProviderUsing(Transaction $transaction)
+    {
+        if (is_null($this->provider)) {
+            $this->provider($transaction->payment_provider);
+        }
+    }
 
     /**
      * Get the instance of the provider
@@ -193,6 +203,7 @@ class PaymentService extends PaymentProvider
             ->cashierInit($cashier, $amount, $data, $transaction);
     }
 
+    
 
     /**
      * Make a charge as a customer
@@ -202,6 +213,8 @@ class PaymentService extends PaymentProvider
      */
     public function charge(Transaction $transaction,  array $data = []): PaymentResponse
     {
+        $this->setMissingProviderUsing($transaction);
+
         //
         $paymentProvider = $this->providerInstance();
 
@@ -256,6 +269,8 @@ class PaymentService extends PaymentProvider
      */
     public function cashierCharge(Authenticatable $cashier, Transaction $transaction,  array $data = []): PaymentResponse
     {
+        $this->setMissingProviderUsing($transaction);
+
         //
         $paymentProvider = $this->providerInstance();
 
@@ -292,6 +307,8 @@ class PaymentService extends PaymentProvider
      */
     public function refund(Authenticatable $cashier, Transaction $transaction, int $amount = null, string $description = 'duplicate'): PaymentResponse
     {
+        $this->setMissingProviderUsing($transaction);
+
         //
         $paymentProvider = $this->providerInstance();
 
@@ -330,6 +347,8 @@ class PaymentService extends PaymentProvider
      */
     public function syncTransaction(Transaction $transaction): PaymentResponse
     {
+        $this->setMissingProviderUsing($transaction);
+
         $paymentProvider = $this->providerInstance();
 
         if (!$paymentProvider->authoriseProviderTransaction($transaction)) {
@@ -370,6 +389,8 @@ class PaymentService extends PaymentProvider
 
     public function validateRefund(Transaction $transaction, int $refund_amount): bool
     {
+        $this->setMissingProviderUsing($transaction);
+
         return $this->providerInstance()
             ->validateRefund($transaction, $refund_amount);
     }
@@ -377,6 +398,8 @@ class PaymentService extends PaymentProvider
 
     public function isCancelable(Transaction $transaction): bool
     {
+        $this->setMissingProviderUsing($transaction);
+
         return $this->providerInstance()
             ->isCancelable($transaction);
     }

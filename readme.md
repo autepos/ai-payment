@@ -81,30 +81,26 @@ $paymentResponse = $paymentService->provider('stripe_intent')
 ### Charge
  After the payment is initialised, the next thing is to create a charge,
 ```php
-$paymentResponse = $paymentService->provider('stripe_intent')
-                                    ->config($config)
+$paymentResponse = $paymentService->config($config)
                                     ->charge($transaction);//$transaction may be returned during init above
 ```
 A cashier can also create the charge on behalf of a customer,
 ```php
-$paymentResponse = $paymentService->provider('stripe_intent')
-                                    ->config($config)
+$paymentResponse = $paymentService->config($config)
                                     ->cashierCharge($cashier,$transaction);
 ```
 
 ### Refund
 A successful charge can be refunded,
 ```php
-$paymentResponse = $paymentService->provider('stripe_intent')
-                                    ->config($config)
+$paymentResponse = $paymentService->config($config)
                                     ->refund($cashier,$transaction);
 ```
 
 ### Sync transaction
 The local charge data, a.k.a transaction can be syncronised with the corresponding data held by the provider,
 ```php
-$paymentResponse = $paymentService->provider('stripe_intent')
-                                    ->config($config)
+$paymentResponse = $paymentService->config($config)
                                     ->syncTransaction($transaction);
 ```
 
