@@ -91,7 +91,7 @@ class PaymentService extends PaymentProvider
      * Set the provider using the given transaction if the provider 
      * has not been set already.
      */
-    protected function setMissingProviderUsing(Transaction $transaction)
+    private function setMissingProviderUsing(Transaction $transaction)
     {
         if (is_null($this->provider)) {
             $this->provider($transaction->payment_provider);
