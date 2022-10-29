@@ -1,5 +1,7 @@
 <?php
 
+use Autepos\AiPayment\Models\PaymentProviderCustomer;
+use Autepos\AiPayment\Models\PaymentProviderCustomerPaymentMethod;
 use Illuminate\Support\Facades\Schema;
 use Autepos\AiPayment\Tenancy\Tenant;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,13 +16,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payment_provider_customer_payment_methods', function (Blueprint $table) {
+        Schema::create($this->getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('pid',36)->unique();// The id that can be shared with the public
             Tenant::addSchemaColumn($table);
             
             // 
-            $table->string('payment_provider_payment_method_id')->nullable();//The id the provider uses to uniquely identify this payment method e.g for Stripe, this will be the PaymentMethod->id
+            $table->string('payment_provider_payment_method_id')
+            ->collation('utf8_bin') // This is because Stripe recommends case sensitive column: @see https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible
+            ->nullable();//The id the provider uses to uniquely identify this payment method e.g for Stripe, this will be the PaymentMethod->id
 
             /**
              * Note that this is for relationship with payment_provider_customers table, 
@@ -47,7 +51,7 @@ return new class extends Migration
 
             $table->foreign('payment_provider_customer_id','autepos_pymt_prvd_cust_pymt_mtd')
             ->references('id')
-            ->on('payment_provider_customers')
+            ->on((new PaymentProviderCustomer())->getTable())
             ->onDelete('cascade');
  
         });
@@ -60,6 +64,15 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_provider_customer_payment_methods');
+        Schema::dropIfExists($this->getTableName());
+    }
+
+    /**
+     * Return table name for the migration.
+     *
+     * @return string
+     */
+    private function getTableName(){
+        return (new PaymentProviderCustomerPaymentMethod())->getTable();
     }
 };

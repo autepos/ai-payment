@@ -42,6 +42,8 @@ class PaymentProviderCustomerPaymentMethod extends Model
         'meta'=>'array',
     ];
 
+    protected $table='aip_payment_provider_customer_payment_methods';
+
         /**
      * The "booted" method of the model.
      *

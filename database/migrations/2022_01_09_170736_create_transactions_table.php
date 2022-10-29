@@ -16,7 +16,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('aip_transactions', function (Blueprint $table) {
+        
+        Schema::create($this->getTableName(), function (Blueprint $table) {
             $table->id();
             $table->string('pid',36)->unique();// The id that can be shared with the public
             Tenant::addSchemaColumn($table);
@@ -66,7 +67,9 @@ return new class extends Migration
              * This should uniquely identify the family/group within this transaction
              * E.g the corresponding Stripe's payment_intent_id
              */
-            $table->string('transaction_family_id')->nullable();
+            $table->string('transaction_family_id')
+            ->collation('utf8_bin') // This is because Stripe recommends case sensitive column: @see https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible
+            ->nullable();
 
             /**
              * This represents a unique item belonging to transaction family with id of
@@ -75,7 +78,9 @@ return new class extends Migration
              * for Stripe a payment intent will have an array of charge objects. So the 
              * id of the charge objects goes here.
              */
-            $table->string('transaction_child_id')->nullable();
+            $table->string('transaction_child_id')
+            ->collation('utf8_bin') // This is because Stripe recommends case sensitive column: @see https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible
+            ->nullable();
 
             //
             $table->boolean('success')->default(false);
@@ -129,6 +134,15 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('aip_transactions');
+        Schema::dropIfExists($this->getTableName());
+    }
+
+    /**
+     * Return table name for the migration.
+     *
+     * @return string
+     */
+    private function getTableName(){
+        return (new Transaction())->getTable();
     }
 };

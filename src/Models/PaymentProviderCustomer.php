@@ -29,6 +29,8 @@ class PaymentProviderCustomer extends Model
         'updated_at',
     ];
 
+    protected $table='aip_payment_provider_customers';
+
     protected $casts = [
         'meta' => 'array',
     ];
