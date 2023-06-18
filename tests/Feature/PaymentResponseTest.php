@@ -33,7 +33,7 @@ class PaymentResponseTest extends TestCase
 
         $keys = ['type', 'success', 'message', 'transaction', 'client_side_data', 'errors'];
         foreach ($keys as $key) {
-            $this->assertObjectHasAttribute($key, $serialised_obj);
+            $this->assertObjectHasProperty($key, $serialised_obj);
         }
     }
     public function test_can_set_client_side_data()

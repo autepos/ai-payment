@@ -17,7 +17,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
-        "orchestra/testbench": "^7.6"
+        "orchestra/testbench": "^8.0"
     },
     "suggest": {
         "autepos/stripe-intent": "For the default payment provider for Stripe intent"
