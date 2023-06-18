@@ -360,6 +360,7 @@ class PaymentProviderTest extends TestCase
 
         // Now demonstration how the customer method should work, using expectations
         $mockAbstractPaymentProvider->shouldReceive('customer')
+            ->once()
             ->andReturn($mockProviderCustomer); // Tests the return type
 
 
@@ -373,6 +374,7 @@ class PaymentProviderTest extends TestCase
 
         // Now demonstration how the paymentMethod method should work, using expectations
         $mockAbstractPaymentProvider->shouldReceive('paymentMethod')
+            ->once()
             ->with(Mockery::type(CustomerData::class)) // Testes the input
             ->andReturn($mockProviderPaymentMethod); // Tests the return type
 
